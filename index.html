@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>五惠食品 · 原料處理記錄</title>
+<style>
+:root {
+  --ink: #1a1f2e;
+  --ink2: #4a5168;
+  --ink3: #8891a8;
+  --paper: #f8f9fc;
+  --white: #ffffff;
+  --line: #e4e7ef;
+  --line2: #c8cdd8;
+  --green: #0d7c4a;
+  --green-l: #e8f5ee;
+  --green-b: #b8deca;
+  --red: #c0392b;
+  --red-l: #fdf0ee;
+  --amber: #b45309;
+  --amber-l: #fef3e2;
+  --blue: #1a56db;
+  --blue-l: #eef2fd;
+  --purple: #6d28d9;
+  --purple-l: #f3f0fd;
+  --teal: #0e7490;
+  --teal-l: #e8f7fa;
+  --r: 10px;
+  --r2: 14px;
+  --shadow: 0 1px 3px rgba(26,31,46,.07), 0 4px 14px rgba(26,31,46,.05);
+  --shadow2: 0 4px 16px rgba(26,31,46,.12), 0 8px 32px rgba(26,31,46,.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { font-size:16px; }
+body { font-family: 'Noto Sans TC', system-ui, sans-serif; background:var(--paper); color:var(--ink); line-height:1.6; min-height:100vh; }
+
+/* TOP BAR */
+.topbar { background:var(--ink); color:#fff; padding:0 20px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.topbar-brand { display:flex; align-items:center; gap:10px; }
+.topbar-logo { width:32px; height:32px; background:linear-gradient(135deg,#0d7c4a,#16a34a); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.topbar-name { font-size:15px; font-weight:600; letter-spacing:.3px; }
+.topbar-sub { font-size:11px; color:rgba(255,255,255,.5); margin-top:1px; font-family:monospace; }
+.topbar-status { display:flex; align-items:center; gap:6px; font-size:12px; color:rgba(255,255,255,.6); }
+.status-dot { width:7px; height:7px; border-radius:50%; background:#22c55e; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* MAIN LAYOUT */
+.shell { max-width:900px; margin:0 auto; padding:20px 16px 80px; }
+
+/* STEP INDICATOR */
+.steps { display:flex; gap:0; margin-bottom:24px; background:var(--white); border:1px solid var(--line); border-radius:var(--r2); overflow:hidden; box-shadow:var(--shadow); }
+.step { flex:1; padding:12px 8px; text-align:center; font-size:12px; color:var(--ink3); cursor:pointer; border-right:1px solid var(--line); transition:all .2s; position:relative; }
+.step:last-child { border-right:none; }
+.step.active { background:var(--blue-l); color:var(--blue); font-weight:600; }
+.step.done { background:var(--green-l); color:var(--green); }
+.step-n { font-size:18px; font-weight:700; display:block; line-height:1; margin-bottom:3px; font-family:monospace; }
+.step.active .step-n { color:var(--blue); }
+.step.done .step-n { color:var(--green); }
+
+/* CARD */
+.card { background:var(--white); border:1px solid var(--line); border-radius:var(--r2); margin-bottom:16px; box-shadow:var(--shadow); overflow:hidden; }
+.card-hdr { padding:14px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; background:var(--paper); }
+.card-title { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.card-body { padding:18px; }
+
+/* FRUIT SELECTOR */
+.fruit-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+@media(max-width:600px) { .fruit-grid { grid-template-columns:repeat(3,1fr); } }
+.fruit-btn { border:2px solid var(--line); border-radius:var(--r2); padding:14px 6px; text-align:center; cursor:pointer; transition:all .18s; background:var(--white); }
+.fruit-btn:hover { border-color:var(--line2); background:var(--paper); transform:translateY(-1px); box-shadow:var(--shadow); }
+.fruit-btn.selected { border-color:var(--green); background:var(--green-l); box-shadow:0 0 0 3px rgba(13,124,74,.12); }
+.fruit-ico { font-size:32px; margin-bottom:6px; display:block; }
+.fruit-name { font-size:13px; font-weight:600; color:var(--ink); }
+.fruit-sub { font-size:10px; color:var(--ink3); margin-top:1px; }
+.fruit-btn.selected .fruit-name { color:var(--green); }
+
+/* OP SELECTOR */
+.op-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:9px; }
+.op-btn { border:1.5px solid var(--line); border-radius:var(--r); padding:11px 12px; cursor:pointer; transition:all .16s; background:var(--white); text-align:left; }
+.op-btn:hover { border-color:var(--line2); background:var(--paper); }
+.op-btn.selected { border-color:var(--blue); background:var(--blue-l); }
+.op-btn-name { font-size:14px; font-weight:600; color:var(--ink); }
+.op-btn.selected .op-btn-name { color:var(--blue); }
+.op-btn-tag { font-size:11px; color:var(--ink3); margin-top:3px; }
+
+/* FORM */
+.fgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; }
+.fg { display:flex; flex-direction:column; gap:5px; }
+.fg.full { grid-column:1/-1; }
+.fg.half { grid-column:span 1; }
+.flbl { font-size:13px; font-weight:500; color:var(--ink2); }
+.req { color:var(--red); }
+.finp, .fsel, .ftxt {
+  font-size:15px; font-family:inherit;
+  border:1.5px solid var(--line); border-radius:9px;
+  padding:10px 13px; background:var(--white); color:var(--ink);
+  transition:border-color .16s, box-shadow .16s; width:100%;
+}
+.finp:focus, .fsel:focus, .ftxt:focus {
+  outline:none; border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(26,86,219,.1);
+}
+.ftxt { resize:vertical; min-height:72px; }
+.fhint { font-size:11px; color:var(--ink3); }
+input[type="date"].finp { font-size:14px; }
+
+/* SECTION DIVIDER */
+.sdiv { display:flex; align-items:center; gap:10px; margin:20px 0 14px; }
+.sdiv-line { flex:1; height:1px; background:var(--line); }
+.sdiv-lbl { font-size:11px; font-weight:600; color:var(--ink3); letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap; }
+
+/* OUTPUT ITEMS */
+.out-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+.out-item { border:1.5px solid var(--line); border-radius:var(--r); padding:12px; background:var(--white); }
+.out-item.pomelo { border-color:var(--amber); background:var(--amber-l); }
+.out-lbl { font-size:12px; font-weight:600; color:var(--ink2); margin-bottom:6px; }
+.out-lbl.pomelo-lbl { color:var(--amber); }
+.out-inp { font-size:16px; font-family:monospace; border:1.5px solid var(--line); border-radius:7px; padding:8px 10px; width:100%; text-align:right; background:var(--white); color:var(--ink); transition:border-color .16s; }
+.out-inp:focus { outline:none; border-color:var(--blue); }
+.out-unit { font-size:11px; color:var(--ink3); margin-top:3px; text-align:right; }
+
+/* LABOR SEGMENTS */
+.seg { display:grid; grid-template-columns:1fr 80px 70px 70px 36px; gap:8px; align-items:end; background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:12px; margin-bottom:8px; }
+.seg-lbl { font-size:11px; font-weight:600; color:var(--ink3); margin-bottom:4px; }
+
+/* LIVE CALC */
+.live-panel { background:linear-gradient(135deg,var(--ink) 0%,#2a3050 100%); border-radius:var(--r2); padding:16px 18px; color:#fff; }
+.live-title { font-size:11px; color:rgba(255,255,255,.5); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px; }
+.live-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.live-row:last-child { margin-bottom:0; padding-top:8px; border-top:1px solid rgba(255,255,255,.1); }
+.live-lbl { font-size:13px; color:rgba(255,255,255,.6); }
+.live-val { font-size:22px; font-weight:700; font-family:monospace; }
+.live-val.good { color:#4ade80; }
+.live-val.warn { color:#fbbf24; }
+.live-val.bad { color:#f87171; }
+.live-val.normal { color:#ffffff; }
+.live-sub { font-size:11px; color:rgba(255,255,255,.4); font-family:monospace; }
+
+/* POMELO SPECIAL */
+.pomelo-header { background:linear-gradient(135deg,var(--amber-l),#fff); border:1.5px solid var(--amber); border-radius:var(--r2); padding:14px 16px; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+.pomelo-badge { background:var(--amber); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:.5px; }
+
+/* PHOTO */
+.photo-zone { border:2px dashed var(--line2); border-radius:var(--r); padding:24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--paper); }
+.photo-zone:hover, .photo-zone.drag { border-color:var(--blue); background:var(--blue-l); }
+.photo-zone-ico { font-size:28px; margin-bottom:6px; }
+.photo-zone p { font-size:13px; color:var(--ink3); }
+.photo-prev { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.photo-thumb { position:relative; width:72px; height:72px; }
+.photo-thumb img { width:100%; height:100%; object-fit:cover; border-radius:7px; border:1px solid var(--line); }
+.photo-thumb .del { position:absolute; top:-5px; right:-5px; width:18px; height:18px; background:var(--red); color:#fff; border:none; border-radius:50%; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+/* BUTTONS */
+.btn { padding:11px 20px; border-radius:10px; font-size:15px; font-weight:500; cursor:pointer; border:1.5px solid var(--line); background:var(--white); color:var(--ink2); font-family:inherit; transition:all .16s; display:inline-flex; align-items:center; gap:7px; }
+.btn:hover { background:var(--paper); border-color:var(--line2); color:var(--ink); }
+.btn-primary { background:var(--green); color:#fff; border-color:var(--green); box-shadow:0 3px 10px rgba(13,124,74,.25); }
+.btn-primary:hover { background:#0a6640; border-color:#0a6640; transform:translateY(-1px); box-shadow:0 5px 16px rgba(13,124,74,.3); }
+.btn-primary:disabled { background:var(--ink3); border-color:var(--ink3); box-shadow:none; transform:none; cursor:not-allowed; }
+.btn-danger { background:var(--red-l); color:var(--red); border-color:#f5c6c2; }
+.btn-sm { padding:7px 14px; font-size:13px; }
+.btn-grp { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+/* ALERT */
+.alert { padding:10px 14px; border-radius:9px; font-size:13px; display:flex; align-items:flex-start; gap:8px; margin-bottom:10px; }
+.alert-err { background:var(--red-l); border:1px solid #f5c6c2; color:var(--red); }
+.alert-warn { background:var(--amber-l); border:1px solid #fcd99a; color:var(--amber); }
+.alert-ok { background:var(--green-l); border:1px solid var(--green-b); color:var(--green); }
+.alert-info { background:var(--blue-l); border:1px solid #bfcffd; color:var(--blue); }
+
+/* SYNC STATUS */
+.sync-bar { position:fixed; bottom:0; left:0; right:0; background:var(--white); border-top:1px solid var(--line); padding:10px 20px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 -4px 20px rgba(26,31,46,.08); z-index:99; }
+.sync-info { font-size:12px; color:var(--ink3); display:flex; align-items:center; gap:6px; }
+.sync-dot { width:6px; height:6px; border-radius:50%; }
+.sync-dot.ok { background:var(--green); }
+.sync-dot.saving { background:var(--amber); animation:pulse 1s infinite; }
+.sync-dot.err { background:var(--red); }
+
+/* BADGE */
+.badge { display:inline-flex; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; font-family:monospace; }
+.bg { background:var(--green-l); color:var(--green); }
+.br { background:var(--red-l); color:var(--red); }
+.by { background:var(--amber-l); color:var(--amber); }
+.bb { background:var(--blue-l); color:var(--blue); }
+
+/* HIDDEN / VISIBLE */
+.hidden { display:none !important; }
+
+/* TOAST */
+#toasts { position:fixed; top:70px; right:16px; z-index:999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.toast { background:var(--ink); color:#fff; padding:12px 16px; border-radius:10px; font-size:14px; display:flex; align-items:center; gap:8px; box-shadow:var(--shadow2); animation:slideIn .25s ease; pointer-events:all; max-width:320px; }
+.toast.ok { border-left:4px solid #4ade80; }
+.toast.err { border-left:4px solid #f87171; }
+.toast.info { border-left:4px solid #60a5fa; }
+@keyframes slideIn { from{transform:translateX(110%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* DIVIDER */
+.divider { height:1px; background:var(--line); margin:14px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">🍊</div>
+    <div>
+      <div class="topbar-name">五惠食品 原料處理記錄</div>
+      <div class="topbar-sub">WUHUEI FOOD · YIELD MANAGEMENT SYSTEM</div>
+    </div>
+  </div>
+  <div class="topbar-status">
+    <div class="status-dot" id="conn-dot"></div>
+    <span id="conn-txt">連線中...</span>
+  </div>
+</div>
+
+<div class="shell">
+  <div id="val-panel"></div>
+
+  <!-- STEP INDICATOR -->
+  <div class="steps" id="steps">
+    <div class="step active" id="step1"><span class="step-n">1</span>品種</div>
+    <div class="step" id="step2"><span class="step-n">2</span>基本資料</div>
+    <div class="step" id="step3"><span class="step-n">3</span>預處理</div>
+    <div class="step" id="step4"><span class="step-n">4</span>人力工時</div>
+    <div class="step" id="step5"><span class="step-n">5</span>產出記錄</div>
+  </div>
+
+  <!-- STEP 1: 品種選擇 -->
+  <div id="s1" class="step-content">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">🌿 選擇水果品種與作業類型</div></div>
+      <div class="card-body">
+        <div class="fgrid" style="margin-bottom:18px">
+          <div class="fg">
+            <label class="flbl">作業日期 <span class="req">*</span></label>
+            <input type="date" class="finp" id="i-date">
+          </div>
+          <div class="fg">
+            <label class="flbl">作業地點</label>
+            <select class="fsel" id="i-loc">
+              <option value="">-- 選擇地點 --</option>
+              <option value="2廠3F原料">2廠3F原料</option>
+              <option value="1廠1F">1廠1F</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+        </div>
+        <div class="sdiv"><div class="sdiv-line"></div><div class="sdiv-lbl">選擇品種</div><div class="sdiv-line"></div></div>
+        <div class="fruit-grid" id="fruit-grid"></div>
+        <div class="sdiv hidden" id="op-section"><div class="sdiv-line"></div><div class="sdiv-lbl">選擇作業類型</div><div class="sdiv-line"></div></div>
+        <div class="op-grid hidden" id="op-grid"></div>
+      </div>
+    </div>
+    <div class="btn-grp">
+      <button class="btn btn-primary" onclick="goStep(2)" id="btn-s1-next" disabled>下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: 基本資料 -->
+  <div id="s2" class="step-content hidden">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">📋 原料基本資料</div></div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label class="flbl">供應商</label>
+            <input class="finp" id="i-sup" placeholder="輸入供應商名稱">
+          </div>
+          <div class="fg">
+            <label class="flbl">本批原料總重量 (KG) <span class="req">*</span></label>
+            <input type="number" class="finp" id="i-raw" min="0" step="0.01" placeholder="0.00" oninput="calcLive()">
+          </div>
+          <div class="fg">
+            <label class="flbl">原料長度 (cm)</label>
+            <input type="number" class="finp" id="i-len" min="0" step="0.1" placeholder="0.0">
+          </div>
+          <div class="fg">
+            <label class="flbl">原料直徑ø (cm)</label>
+            <input type="number" class="finp" id="i-dia" min="0" step="0.1" placeholder="0.0">
+          </div>
+          <div class="fg">
+            <label class="flbl">原料狀況</label>
+            <select class="fsel" id="i-cond">
+              <option value="良好">良好</option>
+              <option value="普通">普通</option>
+              <option value="較差">較差</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="flbl">原料軟硬度</label>
+            <select class="fsel" id="i-tex">
+              <option value="">-- 選擇 --</option>
+              <option value="偏硬">偏硬</option>
+              <option value="適中">適中</option>
+              <option value="偏軟">偏軟</option>
+            </select>
+          </div>
+          <div class="fg full">
+            <label class="flbl">備註</label>
+            <textarea class="ftxt" id="i-note" placeholder="原料來源、特殊狀況、品種規格等..."></textarea>
+          </div>
+          <div class="fg full">
+            <label class="flbl">📷 現場照片</label>
+            <div class="photo-zone" onclick="document.getElementById('i-photo').click()" id="photo-zone"
+              ondragover="event.preventDefault();this.classList.add('drag')"
+              ondragleave="this.classList.remove('drag')"
+              ondrop="photoDrop(event)">
+              <div class="photo-zone-ico">📷</div>
+              <p>點擊上傳或拖曳照片（可多張）</p>
+              <p style="font-size:11px;margin-top:4px">JPG / PNG / WEBP</p>
+            </div>
+            <input type="file" id="i-photo" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+            <div class="photo-prev" id="photo-prev"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-grp">
+      <button class="btn" onclick="goStep(1)">← 上一步</button>
+      <button class="btn btn-primary" onclick="goStep(3)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: 預處理 -->
+  <div id="s3" class="step-content hidden">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">⚗️ 表面預處理</div>
+        <span class="badge bb" id="pt-auto-badge">依品種自動帶入</span>
+      </div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label class="flbl">預處理項目</label>
+            <select class="fsel" id="i-pt">
+              <option value="">無</option>
+              <option value="粗磨">粗磨</option>
+              <option value="清洗">清洗</option>
+              <option value="殺菁">殺菁</option>
+              <option value="浸泡">浸泡</option>
+              <option value="榨汁裝桶/殺菁漂水">榨汁裝桶/殺菁漂水</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="flbl">預處理人力 (人)</label>
+            <input type="number" class="finp" id="i-ptw" min="0" step="1" placeholder="0" oninput="calcLive()">
+          </div>
+          <div class="fg">
+            <label class="flbl">預處理時間</label>
+            <div style="display:flex;gap:7px;align-items:center">
+              <input type="number" class="finp" id="i-pth" min="0" step="1" placeholder="0" style="width:70px" oninput="calcLive()">
+              <span style="font-size:14px;color:var(--ink3)">小時</span>
+              <input type="number" class="finp" id="i-ptm" min="0" max="59" step="1" placeholder="0" style="width:70px" oninput="calcLive()">
+              <span style="font-size:14px;color:var(--ink3)">分</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-grp">
+      <button class="btn" onclick="goStep(2)">← 上一步</button>
+      <button class="btn btn-primary" onclick="goStep(4)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: 人力工時 -->
+  <div id="s4" class="step-content hidden">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">👷 人力與工時</div></div>
+      <div class="card-body">
+        <div class="fgrid" style="margin-bottom:14px">
+          <div class="fg">
+            <label class="flbl">作業平台數 (個)</label>
+            <input type="number" class="finp" id="i-sta" min="0" step="1" placeholder="0">
+          </div>
+        </div>
+        <div class="sdiv"><div class="sdiv-line"></div><div class="sdiv-lbl">多段工時輸入</div><div class="sdiv-line"></div></div>
+        <div id="segs"></div>
+        <button class="btn btn-sm" onclick="addSeg()" style="margin-top:4px">＋ 新增一段工時</button>
+        <div id="labor-preview" class="hidden" style="margin-top:12px;padding:11px 14px;background:var(--blue-l);border:1px solid #bfcffd;border-radius:9px;font-size:13px;color:var(--blue)"></div>
+      </div>
+    </div>
+    <div class="btn-grp">
+      <button class="btn" onclick="goStep(3)">← 上一步</button>
+      <button class="btn btn-primary" onclick="goStep(5)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: 產出 -->
+  <div id="s5" class="step-content hidden">
+    <div id="pomelo-notice" class="pomelo-header hidden">
+      <span style="font-size:24px">🍈</span>
+      <div>
+        <div style="font-weight:600;color:var(--amber)">柚子多產出記錄模式</div>
+        <div style="font-size:12px;color:var(--ink3)">柚皮、柚脖、柚肉各自獨立計算步留率</div>
+      </div>
+      <span class="pomelo-badge">POMELO MODE</span>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">⚖️ 產出記錄 (KG)</div></div>
+      <div class="card-body">
+        <div class="out-grid" id="out-grid"></div>
+        <div class="sdiv"><div class="sdiv-line"></div><div class="sdiv-lbl">不良品</div><div class="sdiv-line"></div></div>
+        <div class="fgrid">
+          <div class="fg">
+            <label class="flbl">不良品總重 (KG)</label>
+            <input type="number" class="finp" id="i-def" min="0" step="0.01" placeholder="0.00" oninput="calcLive()">
+            <span class="fhint" id="defect-hint">籽、廢棄果皮、梗、蒂頭、爛果等主動去除部分</span>
+          </div>
+          <div class="fg">
+            <label class="flbl">📊 即時三層分析</label>
+            <div class="live-panel">
+              <div class="live-title">LIVE CALCULATION</div>
+              <div class="live-row">
+                <span class="live-lbl">步留率</span>
+                <span class="live-val" id="lv-y" class="normal">--%</span>
+              </div>
+              <div class="live-row">
+                <span class="live-lbl">不良品率</span>
+                <span class="live-val" id="lv-d" style="font-size:18px;color:rgba(255,255,255,.7)">--%</span>
+              </div>
+              <div class="live-row">
+                <span class="live-lbl">作業耗損率</span>
+                <span class="live-val" id="lv-l" style="font-size:18px;color:rgba(255,255,255,.5)">--%</span>
+              </div>
+              <div class="live-row" id="pomelo-util-row" style="display:none">
+                <span class="live-lbl">有效利用率</span>
+                <span class="live-val" id="lv-u" style="font-size:18px">--%</span>
+              </div>
+              <div class="live-sub" id="lv-kg">產出 0 / 不良 0 / 耗損 0 / 投入 0 KG</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-grp" style="margin-bottom:28px">
+      <button class="btn" onclick="goStep(4)">← 上一步</button>
+      <button class="btn btn-primary" onclick="submitBatch()" id="btn-submit">✅ 儲存並同步到 Google Sheets</button>
+      <button class="btn" onclick="resetAll()">🔄 全部重填</button>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<div class="sync-bar">
+  <div class="sync-info">
+    <div class="sync-dot ok" id="sync-dot"></div>
+    <span id="sync-txt">就緒</span>
+  </div>
+  <div class="btn-grp">
+    <button class="btn btn-sm" onclick="viewHistory()">📋 查看歷史記錄</button>
+    <button class="btn btn-sm btn-primary" onclick="goStep(1)">＋ 新增記錄</button>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG - Google Sheets ID
+// ═══════════════════════════════════════════
+var SHEETS_ID = '1LrkHXhwOhjikECdqBo2GWzBojks2Y-vNe1XOcsooWOo';
+var SHEETS_URL = 'https://docs.google.com/spreadsheets/d/' + SHEETS_ID;
+var API_URL = 'https://script.google.com/macros/s/AKfycbzEBGcZpiwZ5TY6EkwaQgCG3r3g8DCVaPS5pNhWmygrJLRgr522ZmFdk-BlX3jDdF4cCg/exec';
+
+// ═══════════════════════════════════════════
+// FRUIT CONFIG
+// ═══════════════════════════════════════════
+var FC = {
+  '柚子': {
+    ico: '🍈', sub: 'Pomelo', color: '#b45309',
+    ops: [
+      { id: '剝柚子', name: '剝柚子（取皮肉）', tag: '粗磨前置', pt: '粗磨' },
+      { id: '切柚皮條', name: '切柚皮條', tag: '後段加工', pt: '' },
+      { id: '切柚皮絲', name: '切柚皮絲', tag: '後段加工', pt: '' },
+      { id: '剝柚肉', name: '剝柚肉', tag: '取果肉', pt: '' }
+    ],
+    isPomelo: true,
+    outs: {
+      '剝柚子': [
+        { id: 'pomelo_skin', label: '柚皮 (KG)', isPrimary: false, isPomelo: true, hint: '目標 29%' },
+        { id: 'pomelo_neck', label: '柚脖 (KG)', isPrimary: false, isPomelo: true, hint: '約 4%' },
+        { id: 'pomelo_flesh', label: '柚肉 (KG)', isPrimary: true, isPomelo: true, hint: '目標 67%' }
+      ],
+      '切柚皮條': [{ id: 'pomelo_strip', label: '柚皮條 (KG)', isPrimary: true, isPomelo: false }],
+      '切柚皮絲': [{ id: 'pomelo_shred', label: '柚皮絲 (KG)', isPrimary: true, isPomelo: false }],
+      '剝柚肉': [{ id: 'pomelo_meat', label: '去籽柚肉 (KG)', isPrimary: true, isPomelo: false }]
+    },
+    defectHint: '柚子：蒂頭、不良果、爛果。剝柚肉時柚囊計入不良品'
+  },
+  '蘋果': {
+    ico: '🍎', sub: 'Apple', color: '#dc2626',
+    ops: [{ id: '蘋果-切削', name: '蘋果切削', tag: '切四等份去核', pt: '清洗' }],
+    isPomelo: false,
+    outs: { '蘋果-切削': [{ id: 'apple_flesh', label: '果肉 (KG)', isPrimary: true }] },
+    defectHint: '爛果、果皮、蒂頭、核芯'
+  },
+  '芒果': {
+    ico: '🥭', sub: 'Mango', color: '#ea580c',
+    ops: [{ id: '芒果-切削', name: '芒果切削', tag: '削皮去果核', pt: '清洗' }],
+    isPomelo: false,
+    outs: { '芒果-切削': [{ id: 'mango_flesh', label: '果肉 (KG)', isPrimary: true }] },
+    defectHint: '果核、果皮、爛果（流失量也計入）'
+  },
+  '奇異果': {
+    ico: '🥝', sub: 'Kiwi', color: '#0d7c4a',
+    ops: [{ id: '奇異果-切削', name: '奇異果切削', tag: '去頭尾削皮', pt: '' }],
+    isPomelo: false,
+    outs: { '奇異果-切削': [{ id: 'kiwi_flesh', label: '果肉 (KG)', isPrimary: true }] },
+    defectHint: '果皮、爛果、頭尾切除'
+  },
+  '橘子': {
+    ico: '🍊', sub: 'Tangerine', color: '#ea580c',
+    ops: [
+      { id: '剝橘子', name: '剝橘子（取皮肉）', tag: '殺菁前置', pt: '殺菁' },
+      { id: '橘子果肉切片去籽', name: '橘子果肉切片去籽', tag: '後段加工', pt: '' },
+      { id: '橘子榨汁', name: '橘子榨汁', tag: '製汁', pt: '榨汁裝桶/殺菁漂水' }
+    ],
+    isPomelo: false,
+    outs: {
+      '剝橘子': [
+        { id: 'tangerine_flesh', label: '果肉含籽 (KG)', isPrimary: true },
+        { id: 'tangerine_skin', label: '橘子皮 (KG)', isPrimary: false }
+      ],
+      '橘子果肉切片去籽': [{ id: 'tangerine_seedless', label: '去籽橘子肉 (KG)', isPrimary: true }],
+      '橘子榨汁': [
+        { id: 'tangerine_juice', label: '橘子果汁 (KG)', isPrimary: true },
+        { id: 'tangerine_skin2', label: '橘子皮 (KG)', isPrimary: false }
+      ]
+    },
+    defectHint: '籽、爛果、蒂頭'
+  },
+  '蘿蔔': {
+    ico: '🥕', sub: 'Radish', color: '#6d28d9',
+    ops: [{ id: '蘿蔔-切削', name: '蘿蔔切削', tag: '切削→清洗→切塊→切角→秤重', pt: '' }],
+    isPomelo: false,
+    outs: { '蘿蔔-切削': [{ id: 'radish_flesh', label: '蘿蔔肉 (KG)', isPrimary: true }] },
+    defectHint: '果皮、爛果、頭尾切除'
+  },
+  '其它': {
+    ico: '🌱', sub: 'Other', color: '#6b7280',
+    ops: [{ id: '自訂作業', name: '自訂作業', tag: '', pt: '' }],
+    isPomelo: false,
+    outs: { '自訂作業': [
+      { id: 'custom_out1', label: '產出品項 1 (KG)', isPrimary: true },
+      { id: 'custom_out2', label: '產出品項 2 (KG)', isPrimary: false }
+    ]},
+    defectHint: '不良品、廢棄物'
+  }
+};
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+var state = {
+  step: 1,
+  fruit: null,
+  op: null,
+  photos: [],
+  segCount: 0
+};
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('i-date').value = new Date().toISOString().slice(0,10);
+  renderFruits();
+  checkConn();
+});
+
+function checkConn() {
+  var dot = document.getElementById('conn-dot');
+  var txt = document.getElementById('conn-txt');
+  fetch('https://docs.google.com/favicon.ico', { mode:'no-cors' })
+    .then(function() { dot.style.background='#22c55e'; txt.textContent='已連線'; })
+    .catch(function() { dot.style.background='#f87171'; txt.textContent='離線模式'; });
+}
+
+// ═══════════════════════════════════════════
+// STEP NAVIGATION
+// ═══════════════════════════════════════════
+function goStep(n) {
+  if (n === 2 && !state.fruit) { toast('請先選擇水果品種', 'err'); return; }
+  if (n === 2 && !state.op) { toast('請選擇作業類型', 'err'); return; }
+  if (n === 5 && !document.getElementById('i-raw').value) { toast('請填寫原料投入量', 'err'); return; }
+
+  document.querySelectorAll('.step-content').forEach(function(el) { el.classList.add('hidden'); });
+  document.getElementById('s' + n).classList.remove('hidden');
+
+  document.querySelectorAll('.step').forEach(function(el, i) {
+    el.classList.remove('active', 'done');
+    if (i + 1 < n) el.classList.add('done');
+    else if (i + 1 === n) el.classList.add('active');
+  });
+  state.step = n;
+  if (n === 5) buildOutGrid();
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════
+// FRUIT & OP RENDERING
+// ═══════════════════════════════════════════
+function renderFruits() {
+  var html = '';
+  Object.entries(FC).forEach(function(entry) {
+    var k = entry[0], v = entry[1];
+    html += '<div class="fruit-btn" onclick="selectFruit(\'' + k + '\')" id="fb-' + k + '">' +
+      '<span class="fruit-ico">' + v.ico + '</span>' +
+      '<div class="fruit-name">' + k + '</div>' +
+      '<div class="fruit-sub">' + v.sub + '</div></div>';
+  });
+  document.getElementById('fruit-grid').innerHTML = html;
+}
+
+function selectFruit(f) {
+  state.fruit = f; state.op = null;
+  document.querySelectorAll('.fruit-btn').forEach(function(el) { el.classList.remove('selected'); });
+  document.getElementById('fb-' + f).classList.add('selected');
+  var cfg = FC[f];
+  var opSection = document.getElementById('op-section');
+  var opGrid = document.getElementById('op-grid');
+  opSection.classList.remove('hidden');
+  opGrid.classList.remove('hidden');
+  var html = '';
+  cfg.ops.forEach(function(op) {
+    html += '<div class="op-btn" onclick="selectOp(\'' + op.id + '\')" id="ob-' + op.id.replace(/[^\w]/g,'_') + '">' +
+      '<div class="op-btn-name">' + op.name + '</div>' +
+      (op.tag ? '<div class="op-btn-tag">🔧 ' + op.tag + '</div>' : '') + '</div>';
+  });
+  opGrid.innerHTML = html;
+  document.getElementById('btn-s1-next').disabled = true;
+}
+
+function selectOp(opId) {
+  state.op = opId;
+  document.querySelectorAll('.op-btn').forEach(function(el) { el.classList.remove('selected'); });
+  var el = document.getElementById('ob-' + opId.replace(/[^\w]/g,'_'));
+  if (el) el.classList.add('selected');
+  document.getElementById('btn-s1-next').disabled = false;
+  // Auto-set pretreat
+  var cfg = FC[state.fruit];
+  var opCfg = cfg.ops.find(function(o) { return o.id === opId; });
+  if (opCfg && opCfg.pt) {
+    document.getElementById('i-pt').value = opCfg.pt;
+    document.getElementById('pt-auto-badge').textContent = '已自動帶入：' + opCfg.pt;
+  } else {
+    document.getElementById('i-pt').value = '';
+    document.getElementById('pt-auto-badge').textContent = '無預處理';
+  }
+}
+
+// ═══════════════════════════════════════════
+// PHOTO HANDLING
+// ═══════════════════════════════════════════
+function photoDrop(e) {
+  e.preventDefault();
+  document.getElementById('photo-zone').classList.remove('drag');
+  Array.from(e.dataTransfer.files).forEach(function(f) { readPhoto(f); });
+}
+function handlePhotos(e) {
+  Array.from(e.target.files).forEach(function(f) { readPhoto(f); });
+  e.target.value = '';
+}
+function readPhoto(file) {
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    state.photos.push(ev.target.result);
+    renderPhotos();
+  };
+  reader.readAsDataURL(file);
+}
+function renderPhotos() {
+  document.getElementById('photo-prev').innerHTML = state.photos.map(function(src, i) {
+    return '<div class="photo-thumb"><img src="' + src + '" alt="photo"><button class="del" onclick="removePhoto(' + i + ')">✕</button></div>';
+  }).join('');
+}
+function removePhoto(i) { state.photos.splice(i, 1); renderPhotos(); }
+
+// ═══════════════════════════════════════════
+// LABOR SEGMENTS
+// ═══════════════════════════════════════════
+function addSeg() {
+  state.segCount++;
+  var id = state.segCount;
+  var div = document.createElement('div');
+  div.id = 'seg' + id; div.className = 'seg';
+  div.innerHTML =
+    '<div><div class="seg-lbl">說明</div><input class="finp" id="sd' + id + '" placeholder="例：切削" style="font-size:14px"></div>' +
+    '<div><div class="seg-lbl">人數</div><input type="number" class="finp" id="sw' + id + '" min="1" step="1" placeholder="0" oninput="calcLive()" style="font-size:15px"></div>' +
+    '<div><div class="seg-lbl">小時</div><input type="number" class="finp" id="sh' + id + '" min="0" step="1" placeholder="0" oninput="calcLive()" style="font-size:15px"></div>' +
+    '<div><div class="seg-lbl">分鐘</div><input type="number" class="finp" id="sm' + id + '" min="0" max="59" step="1" placeholder="0" oninput="calcLive()" style="font-size:15px"></div>' +
+    '<button class="btn btn-danger btn-sm" onclick="removeSeg(' + id + ')" style="padding:8px 10px;align-self:end">✕</button>';
+  document.getElementById('segs').appendChild(div);
+  calcLive();
+}
+function removeSeg(id) {
+  var el = document.getElementById('seg' + id);
+  if (el) el.remove();
+  calcLive();
+}
+function getSegs() {
+  var tmh = 0, th = 0, mw = 0, segs = [];
+  for (var i = 1; i <= state.segCount; i++) {
+    var sw = document.getElementById('sw' + i);
+    if (!sw || !document.getElementById('seg' + i)) continue;
+    var w = parseInt(sw.value) || 0;
+    var h = parseInt(document.getElementById('sh' + i).value) || 0;
+    var m = parseInt(document.getElementById('sm' + i).value) || 0;
+    var dh = h + m / 60, mh = w * dh;
+    tmh += mh; th += dh; mw = Math.max(mw, w);
+    var sd = document.getElementById('sd' + i);
+    if (w > 0 || dh > 0) segs.push({ desc: sd ? sd.value : '', workers: w, hours: dh, manHours: mh });
+  }
+  return { tmh: tmh, th: th, mw: mw, segs: segs };
+}
+
+// ═══════════════════════════════════════════
+// OUTPUT GRID
+// ═══════════════════════════════════════════
+function buildOutGrid() {
+  if (!state.fruit || !state.op) return;
+  var cfg = FC[state.fruit];
+  var outs = cfg.outs[state.op] || [];
+  var isPomelo = cfg.isPomelo && state.op === '剝柚子';
+  var html = '';
+  outs.forEach(function(o) {
+    var cls = o.isPomelo ? ' pomelo' : '';
+    var lblCls = o.isPomelo ? ' pomelo-lbl' : '';
+    html += '<div class="out-item' + cls + '">' +
+      '<div class="out-lbl' + lblCls + '">' + o.label + (o.hint ? ' <span style="font-size:10px;color:var(--ink3)">（' + o.hint + '）</span>' : '') + '</div>' +
+      '<input type="number" class="out-inp" id="out-' + o.id + '" min="0" step="0.01" placeholder="0.00" oninput="calcLive()">' +
+      '<div class="out-unit">公斤 KG</div></div>';
+  });
+  document.getElementById('out-grid').innerHTML = html;
+  document.getElementById('defect-hint').textContent = cfg.defectHint || '';
+  // Pomelo special UI
+  if (isPomelo) {
+    document.getElementById('pomelo-notice').classList.remove('hidden');
+    document.getElementById('pomelo-util-row').style.display = 'flex';
+  } else {
+    document.getElementById('pomelo-notice').classList.add('hidden');
+    document.getElementById('pomelo-util-row').style.display = 'none';
+  }
+  calcLive();
+}
+
+// ═══════════════════════════════════════════
+// LIVE CALCULATION
+// ═══════════════════════════════════════════
+function calcLive() {
+  var raw = parseFloat(document.getElementById('i-raw') && document.getElementById('i-raw').value) || 0;
+  var def = parseFloat(document.getElementById('i-def') && document.getElementById('i-def').value) || 0;
+  var totalOut = 0;
+  document.querySelectorAll('.out-inp').forEach(function(inp) { totalOut += parseFloat(inp.value) || 0; });
+  var loss = Math.max(0, raw - totalOut - def);
+  var yr = raw > 0 ? totalOut / raw * 100 : 0;
+  var dr = raw > 0 ? def / raw * 100 : 0;
+  var lr = raw > 0 ? loss / raw * 100 : 0;
+
+  var lyEl = document.getElementById('lv-y');
+  if (lyEl) {
+    lyEl.textContent = yr.toFixed(1) + '%';
+    lyEl.className = 'live-val ' + (yr >= 75 ? 'good' : yr >= 60 ? 'warn' : 'bad');
+  }
+  var ldEl = document.getElementById('lv-d'); if (ldEl) ldEl.textContent = dr.toFixed(1) + '%';
+  var llEl = document.getElementById('lv-l'); if (llEl) llEl.textContent = lr.toFixed(1) + '%';
+  var lkEl = document.getElementById('lv-kg');
+  if (lkEl) lkEl.textContent = '產出 ' + totalOut.toFixed(1) + ' / 不良 ' + def.toFixed(1) + ' / 耗損 ' + loss.toFixed(1) + ' / 投入 ' + raw.toFixed(1) + ' KG';
+
+  // Pomelo util rate
+  if (state.fruit === '柚子' && state.op === '剝柚子') {
+    var util = raw > 0 ? (totalOut) / raw * 100 : 0;
+    var luEl = document.getElementById('lv-u'); if (luEl) { luEl.textContent = util.toFixed(1) + '%'; luEl.className = 'live-val ' + (util >= 95 ? 'good' : 'warn'); }
+  }
+
+  // Labor preview
+  var gs = getSegs();
+  var ptw = parseInt(document.getElementById('i-ptw') && document.getElementById('i-ptw').value) || 0;
+  var pth = parseInt(document.getElementById('i-pth') && document.getElementById('i-pth').value) || 0;
+  var ptm = parseInt(document.getElementById('i-ptm') && document.getElementById('i-ptm').value) || 0;
+  var ptd = pth + ptm / 60, ptmh = ptw * ptd, gmh = gs.tmh + ptmh;
+  var lp = document.getElementById('labor-preview');
+  if (lp && gmh > 0) {
+    lp.classList.remove('hidden');
+    var eff = raw > 0 ? (raw / gmh).toFixed(2) : 0;
+    lp.innerHTML = '主作業：<b>' + gs.tmh.toFixed(1) + '</b> 人時　預處理：<b>' + ptmh.toFixed(1) + '</b> 人時　合計：<b>' + gmh.toFixed(1) + '</b> 人時　效率：<b>' + eff + ' KG/人時</b>';
+  } else if (lp) lp.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════
+// SUBMIT & GOOGLE SHEETS SYNC
+// ═══════════════════════════════════════════
+function submitBatch() {
+  document.getElementById('val-panel').innerHTML = '';
+  var date = document.getElementById('i-date').value;
+  var raw = parseFloat(document.getElementById('i-raw').value);
+  var errs = [];
+  if (!date) errs.push('請填寫作業日期');
+  if (!raw || raw <= 0) errs.push('請填寫有效的原料投入量');
+  var totalOut = 0, outputs = {};
+  document.querySelectorAll('.out-inp').forEach(function(inp) {
+    var v = parseFloat(inp.value) || 0;
+    if (v > 0) { outputs[inp.id.replace('out-', '')] = v; totalOut += v; }
+  });
+  var def = parseFloat(document.getElementById('i-def').value) || 0;
+  if (raw && totalOut > raw) errs.push('產出合計 ' + totalOut.toFixed(2) + ' KG 超過投入量 ' + raw + ' KG');
+  if (errs.length) {
+    document.getElementById('val-panel').innerHTML = errs.map(function(e) { return '<div class="alert alert-err">❌ ' + e + '</div>'; }).join('');
+    goStep(1); window.scrollTo(0, 0); return;
+  }
+
+  var gs = getSegs();
+  var ptw = parseInt(document.getElementById('i-ptw').value) || 0;
+  var pth = parseInt(document.getElementById('i-pth').value) || 0;
+  var ptm2 = parseInt(document.getElementById('i-ptm').value) || 0;
+  var ptd = pth + ptm2 / 60, ptmh = ptw * ptd, gmh = gs.tmh + ptmh;
+  var loss = Math.max(0, raw - totalOut - def);
+
+  var batch = {
+    id: Date.now(),
+    date: date,
+    fruit: state.fruit,
+    op: state.op,
+    loc: document.getElementById('i-loc').value,
+    supplier: document.getElementById('i-sup').value,
+    rawkg: raw,
+    len: parseFloat(document.getElementById('i-len').value) || 0,
+    dia: parseFloat(document.getElementById('i-dia').value) || 0,
+    condition: document.getElementById('i-cond').value,
+    texture: document.getElementById('i-tex').value,
+    notes: document.getElementById('i-note').value,
+    pretreat: document.getElementById('i-pt').value,
+    ptWorkers: ptw, ptDuration: ptd, ptManHours: ptmh,
+    outputs: outputs, defect: def, totalOut: totalOut, opLoss: loss,
+    yieldRate: raw > 0 ? totalOut / raw * 100 : 0,
+    defectRate: raw > 0 ? def / raw * 100 : 0,
+    lossRate: raw > 0 ? loss / raw * 100 : 0,
+    workers: gs.mw, stations: parseInt(document.getElementById('i-sta').value) || 0,
+    hours: gs.th, manHours: gs.tmh, grandMH: gmh,
+    laborSegs: gs.segs,
+    efficiency: gmh > 0 ? raw / gmh : 0,
+    photos: state.photos.length
+  };
+
+  // Save locally first
+  try {
+    var local = JSON.parse(localStorage.getItem('wuhuei_batches') || '[]');
+    local.push(batch);
+    localStorage.setItem('wuhuei_batches', JSON.stringify(local));
+  } catch(e) {}
+
+  // Sync to Google Sheets via Apps Script
+  syncToSheets(batch);
+}
+
+function syncToSheets(batch) {
+  setSyncStatus('saving', '正在同步到 Google Sheets...');
+  var btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = '⏳ 同步中...';
+
+  // Use URL-encoded form POST - works with Apps Script without CORS issues
+  var params = new URLSearchParams();
+  params.append('data', JSON.stringify(batch));
+
+  fetch(API_URL, {
+    method: 'POST',
+    body: params
+  })
+  .then(function(res) { return res.text(); })
+  .then(function(text) {
+    try {
+      var result = JSON.parse(text);
+      if (result.status === 'ok') {
+        setSyncStatus('ok', '✅ 已同步到 Google Sheets');
+        toast('✅ 已成功寫入 Google Sheets！', 'ok');
+        showSuccess(batch);
+      } else {
+        throw new Error(result.message || 'Unknown error');
+      }
+    } catch(e) {
+      // If response is not JSON but request succeeded (redirect case)
+      if (text.length > 0) {
+        setSyncStatus('ok', '✅ 已同步');
+        toast('✅ 已寫入 Google Sheets！', 'ok');
+        showSuccess(batch);
+      } else {
+        throw new Error('Empty response');
+      }
+    }
+  })
+  .catch(function(err) {
+    setSyncStatus('err', '同步失敗');
+    toast('⚠️ 同步失敗，資料已暫存', 'err');
+    showFallback(batch);
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = '✅ 儲存並同步到 Google Sheets';
+  });
+}
+
+function showSuccess(batch) {
+  var panel = document.getElementById('val-panel');
+  panel.innerHTML =
+    '<div class="alert alert-ok" style="flex-direction:column;align-items:stretch;gap:10px">' +
+    '<div style="font-size:16px;font-weight:700">✅ 批次已成功寫入 Google Sheets！</div>' +
+    '<div style="font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:6px">' +
+    '<div>📅 日期：<b>' + batch.date + '</b></div>' +
+    '<div>🍊 品種：<b>' + batch.fruit + '</b></div>' +
+    '<div>⚖️ 投入：<b>' + batch.rawkg + ' KG</b></div>' +
+    '<div>📈 步留率：<b>' + (batch.yieldRate || 0).toFixed(1) + '%</b></div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    '<a href="' + SHEETS_URL + '" target="_blank" class="btn btn-primary btn-sm">📗 查看 Google Sheets</a>' +
+    '<button class="btn btn-sm" onclick="clearAndNew()">➕ 繼續新增</button>' +
+    '</div></div>';
+  goStep(1);
+  window.scrollTo(0, 0);
+  resetAll(true);
+}
+
+function showFallback(batch) {
+  var outKeys = Object.keys(batch.outputs || {});
+  var out1 = outKeys[0] ? (batch.outputs[outKeys[0]] || 0) : 0;
+  var out2 = outKeys[1] ? (batch.outputs[outKeys[1]] || 0) : 0;
+  var dateObj = new Date(batch.date);
+  var rocYear = dateObj.getFullYear() - 1911;
+  var row = [
+    'B' + String(Date.now()).slice(-6),
+    dateObj.getFullYear(), rocYear,
+    batch.date, batch.fruit, batch.op || '',
+    batch.loc || '', batch.supplier || '',
+    batch.rawkg, batch.totalOut || 0,
+    out1, out2, batch.defect || 0, batch.opLoss || 0,
+    (batch.yieldRate || 0).toFixed(2) + '%',
+    (batch.defectRate || 0).toFixed(2) + '%',
+    (batch.lossRate || 0).toFixed(2) + '%',
+    batch.workers || 0, (batch.grandMH || 0).toFixed(1),
+    (batch.efficiency || 0).toFixed(3),
+    batch.pretreat || '', batch.condition || '', batch.texture || '', batch.notes || ''
+  ];
+  var rowData = row.join('\t');
+  var panel = document.getElementById('val-panel');
+  panel.innerHTML =
+    '<div class="alert alert-warn" style="flex-direction:column;align-items:stretch;gap:8px">' +
+    '<div style="font-weight:700">⚠️ 網路問題，資料已暫存在瀏覽器</div>' +
+    '<div style="font-size:13px">請複製以下資料，手動貼入 Google Sheets 第一個空白列：</div>' +
+    '<div style="background:#fff;border-radius:7px;padding:10px;font-family:monospace;font-size:11px;overflow-x:auto;white-space:nowrap;border:1px solid #fcd99a">' + row.join('	') + '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    '<button class="btn btn-sm btn-primary" onclick="copyFallback(rowData)" id="copy-btn">📋 複製資料</button>' +
+    '<a href="' + SHEETS_URL + '" target="_blank" class="btn btn-sm">📗 開啟 Sheets</a>' +
+    '</div></div>';
+  goStep(1); window.scrollTo(0, 0); resetAll(true);
+}
+
+function copyFallback(txt) {
+  var ta = document.createElement('textarea');
+  ta.value = txt; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast('✅ 已複製，請貼入 Sheets', 'ok'); }
+  catch(e) { toast('請手動複製上方資料', 'info'); }
+  document.body.removeChild(ta);
+}
+
+function showSheetsPrompt(row, batch) {
+  var panel = document.getElementById('val-panel');
+  panel.innerHTML = '<div class="alert alert-ok" style="flex-direction:column;align-items:stretch">' +
+    '<div style="font-weight:600;margin-bottom:8px;font-size:15px">✅ 批次儲存成功！</div>' +
+    '<div style="font-size:13px;margin-bottom:10px">以下資料已準備好，請手動貼入 Google Sheets：</div>' +
+    '<div style="background:#fff;border-radius:7px;padding:10px 12px;font-family:monospace;font-size:12px;overflow-x:auto;white-space:nowrap;border:1px solid var(--green-b)">' + row.join('\t') + '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">' +
+    '<a href="' + SHEETS_URL + '" target="_blank" class="btn btn-primary btn-sm">📗 開啟 Google Sheets</a>' +
+    '<button class="btn btn-sm" onclick="copyRow(\'' + escapeStr(row.join('\t')) + '\')" >📋 複製這行資料</button>' +
+    '</div></div>';
+  goStep(1);
+  window.scrollTo(0, 0);
+  resetAll(true);
+}
+
+function escapeStr(s) { return s.replace(/'/g, "\\'").replace(/\n/g, ' '); }
+function copyRow(txt) {
+  var ta = document.createElement('textarea');
+  ta.value = txt; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast('✅ 已複製到剪貼簿', 'ok'); } catch(e) { toast('請手動複製', 'info'); }
+  document.body.removeChild(ta);
+}
+
+function setSyncStatus(status, msg) {
+  var dot = document.getElementById('sync-dot');
+  var txt = document.getElementById('sync-txt');
+  dot.className = 'sync-dot ' + status;
+  txt.textContent = msg;
+}
+
+// ═══════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════
+function resetAll(keepPanel) {
+  if (!keepPanel) document.getElementById('val-panel').innerHTML = '';
+  state.fruit = null; state.op = null; state.photos = []; state.segCount = 0;
+  document.querySelectorAll('.fruit-btn').forEach(function(el) { el.classList.remove('selected'); });
+  document.querySelectorAll('.op-btn').forEach(function(el) { el.classList.remove('selected'); });
+  document.getElementById('op-section').classList.add('hidden');
+  document.getElementById('op-grid').classList.add('hidden');
+  document.getElementById('btn-s1-next').disabled = true;
+  ['i-loc','i-sup','i-raw','i-len','i-dia','i-note','i-ptw','i-pth','i-ptm','i-def','i-sta'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('i-cond').value = '良好';
+  document.getElementById('i-tex').value = '';
+  document.getElementById('i-pt').value = '';
+  document.getElementById('photo-prev').innerHTML = '';
+  document.getElementById('segs').innerHTML = '';
+  document.getElementById('i-date').value = new Date().toISOString().slice(0,10);
+  var lp = document.getElementById('labor-preview'); if (lp) lp.classList.add('hidden');
+}
+
+function viewHistory() {
+  window.open(SHEETS_URL, '_blank');
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function toast(msg, type) {
+  var d = document.createElement('div');
+  d.className = 'toast ' + (type || 'info');
+  d.textContent = msg;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(function() { d.remove(); }, 3500);
+}
+
+function clearAndNew() {
+  document.getElementById('val-panel').innerHTML = '';
+  goStep(1);
+}
+</script>
+</body>
+</html>
