@@ -568,6 +568,15 @@ var FRUIT_TAG={
 
 var ALL=[],FILT=[],CUR=null,ST={fruit:null,op:null,photos:[],segN:0};
 
+function fmtDate(d){
+  if(!d)return'-';
+  var s=String(d);
+  // ISO format: 2026-06-14T07:00:00.000Z
+  if(s.indexOf('T')>-1)s=s.slice(0,10);
+  // Already formatted: 2026/06/14 or 2024/09/06
+  return s.replace(/-/g,'/');
+}
+
 // ── INIT ──────────────────────────────────
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('i-date').value=new Date().toISOString().slice(0,10);
@@ -849,7 +858,7 @@ function renderRecs(){
     var isB=r['_builtin'];
     return'<tr>'+
       '<td style="color:var(--ink4);font-size:11px;font-family:JetBrains Mono,monospace">'+(i+1)+'</td>'+
-      '<td>'+r['作業日期']+'</td>'+
+      '<td>'+fmtDate(r['作業日期'])+'</td>'+
       '<td>'+mkTag(r['品種'])+'</td>'+
       '<td style="font-size:12px">'+(r['作業類型']||'-')+'</td>'+
       '<td style="font-size:12px">'+(r['作業地點']||'-')+'</td>'+
@@ -860,7 +869,7 @@ function renderRecs(){
       '<td><div class="bgrp">'+
         '<button class="btn btn-i btn-sm" onclick="showDet('+i+')">詳情</button>'+
         (!isB?'<button class="btn btn-w btn-sm" onclick="openEditD('+i+')">✏️</button>':'')+
-        (!isB?'<button class="btn btn-r btn-sm" onclick="confirmDelD('+i+')">🗑️</button>':'<span class="badge bb" style="padding:4px 8px;font-size:10px">內建</span>')+
+        (!isB?'<button class="btn btn-r btn-sm" onclick="confirmDelD('+i+')">🗑️</button>':'<span class="badge bb" style="padding:4px 8px;font-size:10px">歷史資料</span>')+
       '</div></td></tr>';
   }).join('');
 }
@@ -875,7 +884,7 @@ function showDet(i){
   document.getElementById('det-body').innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
     '<div><div style="font-size:11px;color:var(--ink4);font-weight:600;letter-spacing:.5px;margin-bottom:7px">基本資訊</div>'+
-    '<div class="ir"><span>日期</span><span class="iv">'+r['作業日期']+'</span></div>'+
+    '<div class="ir"><span>日期</span><span class="iv">'+fmtDate(r['作業日期'])+'</span></div>'+
     '<div class="ir"><span>地點</span><span class="iv">'+(r['作業地點']||'-')+'</span></div>'+
     '<div class="ir"><span>供應商</span><span class="iv">'+(r['供應商']||'-')+'</span></div>'+
     '<div class="ir"><span>原料狀況</span><span class="iv">'+(r['原料狀況']||'-')+'</span></div>'+
@@ -898,7 +907,7 @@ function showDet(i){
     '<div class="ir"><span>預處理</span><span class="iv">'+(r['預處理']||'無')+'</span></div>'+
     '<div class="ir"><span>原料尺寸</span><span class="iv">'+(r['原料尺寸']||'-')+'</span></div></div></div>'+
     (r['備註']?'<div class="divider"></div><div style="font-size:13px;color:var(--ink2)">📝 '+r['備註']+'</div>':'')+
-    (r['_builtin']?'<div class="divider"></div><div class="alert ai">ℹ️ 此為內建歷史記錄，如需修改請至 Google Sheets 操作</div>':'');
+    (r['_builtin']?'<div class="divider"></div><div class="alert ai">ℹ️ 此為歷史資料，如需修改請至 Google Sheets 直接操作</div>':'');
   document.getElementById('btn-det-del').style.display=r['_builtin']?'none':'';
   document.getElementById('btn-det-edit').style.display=r['_builtin']?'none':'';
   document.getElementById('modal-det').classList.remove('hidden');
