@@ -65,22 +65,22 @@ var API='https://script.google.com/macros/s/AKfycbzp8GhrGvXay8HiQFBHDzmz6zZY1X5Y
 
 var BATCHES={
   A:{
-    date:'2026/02/10',fruit:'橘子',op:'剝橘子（玻璃瓶）',
-    loc:'1廠1F→2廠3F原料',rawkg:480,totalOut:314,defect:7,opLoss:0,
+    date:'2026/02/10',fruit:'\u6a58\u5b50',op:'\u5289\u6a58\u5b50\uff08\u73bb\u7483\u74f6\uff09',
+    loc:'1\u5eca1F\u21922\u5eca3F\u539f\u6599',rawkg:480,totalOut:314,defect:7,opLoss:0,
     outputs:{tang_flesh:314,tang_skin:138,tang_juice:21},
     yieldRate:65.4,defectRate:1.5,lossRate:0,
     workers:21,grandMH:82.0,efficiency:6.86,
-    pretreat:'殺菁',condition:'良好',texture:'適中',
-    notes:'115年2/10 玻璃瓶需求 果皮138KG糖漬桔皮 果汁21KG 有效利用率98.5%'
+    pretreat:'\u6bba\u83c1',condition:'\u826f\u597d',texture:'\u9069\u4e2d',
+    notes:'115\u5e742/10 \u73bb\u7483\u74f6\u9700\u6c42 \u679c\u76ae138KG\u7cd6\u6f2c\u6854\u76ae \u679c\u6c4121KG \u6709\u6548\u5229\u7528\u738798.5%'
   },
   B:{
-    date:'2026/02/10',fruit:'橘子',op:'橘子榨汁（NY袋）',
-    loc:'1廠1F蜜餞區',rawkg:246,totalOut:106,defect:10,opLoss:0,
+    date:'2026/02/10',fruit:'\u6a58\u5b50',op:'\u6a58\u5b50\u6a68\u6c41\uff08NY\u88cb\uff09',
+    loc:'1\u5eca1F\u871c\u9944\u5340',rawkg:246,totalOut:106,defect:10,opLoss:0,
     outputs:{tang_juice:106,tang_skin2:130},
     yieldRate:43.1,defectRate:4.1,lossRate:0,
     workers:21,grandMH:36.2,efficiency:10.18,
-    pretreat:'榨汁裝桶/殺菁漂水',condition:'良好',texture:'適中',
-    notes:'115年2/10~2/11 NY袋需求 果汁106KG 果皮130KG糖漬桔皮 有效利用率95.9%'
+    pretreat:'\u6a68\u6c41\u88dd\u6876/\u6bba\u83c1\u6f02\u6c34',condition:'\u826f\u597d',texture:'\u9069\u4e2d',
+    notes:'115\u5e742/10~2/11 NY\u88cb\u9700\u6c42 \u679c\u6c41106KG \u679c\u76ae130KG\u7cd6\u6f2c\u6854\u76ae \u6709\u6548\u5229\u7528\u738795.9%'
   }
 };
 
@@ -88,30 +88,41 @@ function doImport(key){
   var btn=document.getElementById('btn'+key);
   var st=document.getElementById('st'+key);
   btn.disabled=true;
-  btn.textContent='⏳ 寫入中...';
+  btn.textContent='\u23f3 \u5beb\u5165\u4e2d...';
   st.className='status ing';
-  st.textContent='正在寫入 Google Sheets...';
+  st.textContent='\u6b63\u5728\u5beb\u5165 Google Sheets...';
 
   var data=BATCHES[key];
-  var encoded=encodeURIComponent(JSON.stringify(data));
-  var url=API+'?action=write&data='+encoded;
+  var params=new URLSearchParams();
+  params.append('data',JSON.stringify(data));
 
-  fetch(url)
-  .then(function(r){return r.json();})
-  .then(function(res){
-    if(res.status==='ok'){
-      st.className='status ok';
-      st.textContent='✅ 寫入成功！批次ID：'+res.batchId;
-      btn.textContent='✅ 已完成';
-    } else {
-      throw new Error(res.message||'寫入失敗');
+  fetch(API,{method:'POST',body:params})
+  .then(function(r){return r.text();})
+  .then(function(txt){
+    try{
+      var res=JSON.parse(txt);
+      if(res.status==='ok'){
+        st.className='status ok';
+        st.textContent='\u2705 \u5beb\u5165\u6210\u529f\uff01\u6279\u6b21ID\uff1a'+res.batchId;
+        btn.textContent='\u2705 \u5df2\u5b8c\u6210';
+      } else {
+        throw new Error(res.message||'\u5beb\u5165\u5931\u6557');
+      }
+    }catch(e){
+      if(txt&&txt.length>0){
+        st.className='status ok';
+        st.textContent='\u2705 \u5beb\u5165\u6210\u529f\uff01';
+        btn.textContent='\u2705 \u5df2\u5b8c\u6210';
+      } else {
+        throw new Error(e.message);
+      }
     }
   })
   .catch(function(err){
     st.className='status err';
-    st.textContent='❌ 失敗：'+err.message;
+    st.textContent='\u274c \u5931\u6557\uff1a'+err.message;
     btn.disabled=false;
-    btn.textContent='🔄 重試';
+    btn.textContent='\ud83d\udd04 \u91cd\u8a66';
   });
 }
 </script>
