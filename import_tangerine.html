@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>匯入橘子資料</title>
+<style>
+body{font-family:sans-serif;max-width:600px;margin:40px auto;padding:20px;background:#f0f4f8}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:16px}
+h2{color:#1e3a8a;margin-bottom:6px}
+.sub{color:#64748b;font-size:13px;margin-bottom:16px}
+.info{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:13px;margin-bottom:14px}
+.info div{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f1f5f9}
+.info div:last-child{border:none}
+.lbl{color:#64748b}
+.val{font-weight:600;color:#1e293b;font-family:monospace}
+.btn{width:100%;padding:14px;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s;margin-bottom:8px}
+.btn-p{background:#1e3a8a;color:#fff}
+.btn-p:hover{background:#1e40af}
+.btn-p:disabled{background:#94a3b8;cursor:not-allowed}
+.status{padding:12px 14px;border-radius:8px;font-size:14px;margin-top:8px;display:none}
+.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
+.err{background:#fee2e2;border:1px solid #fca5a5;color:#dc2626}
+.done{background:#dbeafe;border:1px solid #93c5fd;color:#1e40af}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🍊 橘子歷史資料匯入工具</h2>
+  <div class="sub">將 B023、B024 兩筆橘子資料寫入 Google Sheets</div>
+
+  <div class="info">
+    <div><span class="lbl">批次</span><span class="val">B023</span></div>
+    <div><span class="lbl">日期</span><span class="val">2026/02/10</span></div>
+    <div><span class="lbl">作業</span><span class="val">剝橘子（玻璃瓶）</span></div>
+    <div><span class="lbl">投入</span><span class="val">480 KG</span></div>
+    <div><span class="lbl">果肉</span><span class="val">314 KG (65.4%)</span></div>
+    <div><span class="lbl">果皮</span><span class="val">138 KG (28.8%)</span></div>
+    <div><span class="lbl">果汁</span><span class="val">21 KG (4.4%)</span></div>
+    <div><span class="lbl">有效利用率</span><span class="val">98.5%</span></div>
+  </div>
+  <button class="btn btn-p" id="btn023" onclick="importBatch('b023')">✅ 匯入 B023 玻璃瓶批次</button>
+  <div class="status" id="st023"></div>
+</div>
+
+<div class="card">
+  <h2>🍊 橘子歷史資料匯入工具</h2>
+  <div class="sub">第二批次</div>
+
+  <div class="info">
+    <div><span class="lbl">批次</span><span class="val">B024</span></div>
+    <div><span class="lbl">日期</span><span class="val">2026/02/10~11</span></div>
+    <div><span class="lbl">作業</span><span class="val">橘子榨汁（NY袋）</span></div>
+    <div><span class="lbl">投入</span><span class="val">246 KG</span></div>
+    <div><span class="lbl">果汁</span><span class="val">106 KG (43.1%)</span></div>
+    <div><span class="lbl">果皮</span><span class="val">130 KG (52.8%)</span></div>
+    <div><span class="lbl">有效利用率</span><span class="val">95.9%</span></div>
+  </div>
+  <button class="btn btn-p" id="btn024" onclick="importBatch('b024')">✅ 匯入 B024 NY袋批次</button>
+  <div class="status" id="st024"></div>
+</div>
+
+<script>
+var API='https://script.google.com/macros/s/AKfycbzp8GhrGvXay8HiQFBHDzmz6zZY1X5YYlr0TB_XBW6B-iueOyOHAUNJSSvF6qTUZAAdqA/exec';
+
+var DATA={
+  b023:{
+    date:'2026/02/10',fruit:'橘子',op:'剝橘子（玻璃瓶）',
+    loc:'1廠1F→2廠3F原料',rawkg:480,totalOut:314,defect:7,opLoss:0,
+    outputs:{tang_flesh:314,tang_skin:138,tang_juice:21},
+    yieldRate:65.4,defectRate:1.5,lossRate:0,
+    workers:21,grandMH:82.0,efficiency:6.86,
+    pretreat:'殺菁',condition:'良好',texture:'適中',
+    notes:'115年2/10 玻璃瓶需求 果皮138KG糖漬桔皮 果汁21KG 有效利用率98.5%'
+  },
+  b024:{
+    date:'2026/02/10',fruit:'橘子',op:'橘子榨汁（NY袋）',
+    loc:'1廠1F蜜餞區',rawkg:246,totalOut:106,defect:10,opLoss:0,
+    outputs:{tang_juice:106,tang_skin2:130},
+    yieldRate:43.1,defectRate:4.1,lossRate:0,
+    workers:21,grandMH:36.2,efficiency:10.18,
+    pretreat:'榨汁裝桶/殺菁漂水',condition:'良好',texture:'適中',
+    notes:'115年2/10~2/11 NY袋需求 果汁106KG 果皮130KG糖漬桔皮 有效利用率95.9%'
+  }
+};
+
+function importBatch(key){
+  var btn=document.getElementById('btn'+key.replace('b','0'));
+  var st=document.getElementById('st'+key.replace('b','0'));
+  btn.disabled=true;
+  btn.textContent='⏳ 匯入中...';
+  st.style.display='block';
+  st.className='status done';
+  st.textContent='正在寫入 Google Sheets...';
+
+  var encoded=encodeURIComponent(JSON.stringify(DATA[key]));
+  var url=API+'?action=write&data='+encoded;
+
+  fetch(url,{method:'GET'})
+  .then(function(r){return r.json();})
+  .then(function(res){
+    if(res.status==='ok'){
+      st.className='status ok';
+      st.textContent='✅ 寫入成功！批次ID：'+res.batchId;
+      btn.textContent='✅ 已完成';
+    } else {
+      throw new Error(res.message||'錯誤');
+    }
+  })
+  .catch(function(err){
+    st.className='status err';
+    st.textContent='❌ 失敗：'+err.message;
+    btn.disabled=false;
+    btn.textContent='🔄 重試';
+  });
+}
+</script>
+</body>
+</html>
