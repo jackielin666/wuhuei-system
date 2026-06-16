@@ -88,7 +88,7 @@ async function run(){
       if(res.status==='ok'){
         addLog('✅ '+b.batchId+' '+b.fruit+' '+b.op,'ok');ok++;
       } else {
-        addLog('❌ '+b.batchId+' '+（res.message||'失敗'),'err');fail++;
+        addLog('❌ '+b.batchId+' '+(res.message||'失敗'),'err');fail++;
       }
     }catch(e){
       addLog('❌ '+b.batchId+' 例外：'+e.message,'err');fail++;
