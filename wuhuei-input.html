@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>五惠食品 · 智慧原料步留率系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1e293b;--ink2:#475569;--ink3:#64748b;--ink4:#94a3b8;
+  --bg:#f0f4f8;--bg2:#f8fafc;--card:#ffffff;
+  --line:#e2e8f0;--line2:#cbd5e1;
+  --blue:#1e3a8a;--blue-m:#2563eb;--blue-l:#eff6ff;--blue-b:#93c5fd;
+  --green:#14532d;--green-m:#15803d;--green-l:#f0fdf4;--green-b:#86efac;
+  --red:#991b1b;--red-m:#dc2626;--red-l:#fee2e2;--red-b:#fca5a5;
+  --amber:#92400e;--amber-m:#d97706;--amber-l:#fef3c7;--amber-b:#fcd34d;
+  --orange:#9a3412;--orange-m:#ea580c;--orange-l:#fff7ed;--orange-b:#fdba74;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
+  --shadow-lg:0 10px 15px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.05);
+  --shadow-xl:0 20px 25px rgba(0,0,0,.1),0 10px 10px rgba(0,0,0,.04);
+  --r:8px;--r2:12px;--r3:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:15px}
+body{font-family:'Noto Sans TC','Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;min-height:100vh}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+
+/* ══ TOPBAR ══════════════════════════════ */
+.topbar{background:var(--blue);height:68px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 10px rgba(30,58,138,.3)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-ico{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 2px 8px rgba(59,130,246,.4);flex-shrink:0}
+.brand-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:.3px}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:1px;margin-top:1px;font-family:'JetBrains Mono',monospace}
+.tnav-wrap{display:flex;gap:4px}
+.tnav{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;color:rgba(255,255,255,.6);background:transparent;font-family:inherit;transition:all .15s}
+.tnav:hover{color:#fff;background:rgba(255,255,255,.1)}
+.tnav.on{background:rgba(255,255,255,.15);color:#fff}
+.conn-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.1);padding:4px 11px;border-radius:20px;font-family:'JetBrains Mono',monospace}
+.cdot{width:6px;height:6px;border-radius:50%;background:#64748b;flex-shrink:0}
+.cdot.ok{background:#34d399;animation:cdot-p 2s infinite}
+.cdot.err{background:#f87171}
+@keyframes cdot-p{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.4)}50%{box-shadow:0 0 0 4px rgba(52,211,153,0)}}
+
+/* ══ VIEWS ═══════════════════════════════ */
+.view{display:none;max-width:940px;margin:0 auto;padding:22px 16px 88px}
+.view.on{display:block;animation:vfade .2s ease}
+@keyframes vfade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ PAGE HEADER ═════════════════════════ */
+.ph{margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ph-title{font-size:20px;font-weight:700;color:var(--blue);margin-bottom:2px}
+.ph-sub{font-size:12px;color:var(--ink4)}
+
+/* ══ STEP TRACKER ════════════════════════ */
+.steps{display:flex;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.si{flex:1;padding:11px 5px;text-align:center;font-size:11px;color:var(--ink4);border-right:1px solid var(--line);transition:all .18s;position:relative;cursor:default}
+.si:last-child{border-right:none}
+.si.done{background:var(--green-l);color:var(--green-m)}
+.si.done::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:var(--green-m)}
+.si.active{background:var(--blue-l);color:var(--blue);font-weight:600}
+.si.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:var(--blue)}
+.si-n{font-size:17px;font-weight:700;display:block;line-height:1;margin-bottom:2px;font-family:'JetBrains Mono',monospace}
+
+/* ══ CARD ════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r3);margin-bottom:14px;box-shadow:var(--shadow)}
+.ch{padding:13px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border-radius:var(--r3) var(--r3) 0 0}
+.ct{font-size:14px;font-weight:600;color:var(--blue);display:flex;align-items:center;gap:7px}
+.cb{padding:18px}
+
+/* ══ FRUIT GRID ══════════════════════════ */
+.fruit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:520px){.fruit-grid{grid-template-columns:repeat(3,1fr)}}
+.fcard{border:2px solid var(--line);border-radius:var(--r2);padding:16px 8px 13px;text-align:center;cursor:pointer;transition:all .17s;background:var(--card)}
+.fcard:hover{border-color:var(--blue-m);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.fcard.sel{border-color:var(--blue);background:var(--blue-l);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fcard-ico{width:44px;height:44px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;font-size:36px;line-height:1}
+.fcard-name{font-size:14px;font-weight:700;color:var(--ink)}
+.fcard.sel .fcard-name{color:var(--blue)}
+.fcard-sub{font-size:10px;color:var(--ink4);margin-top:2px}
+
+/* ══ OP GRID ═════════════════════════════ */
+.op-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.ocard{border:1.5px solid var(--line);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .15s;background:var(--card)}
+.ocard:hover{border-color:var(--blue-m);background:var(--blue-l)}
+.ocard.sel{border-color:var(--blue);background:var(--blue-l)}
+.ocard-name{font-size:13px;font-weight:600;color:var(--ink)}
+.ocard.sel .ocard-name{color:var(--blue)}
+.ocard-tag{font-size:11px;color:var(--ink4);margin-top:2px}
+
+/* ══ FORM ════════════════════════════════ */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:13px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg.full{grid-column:1/-1}
+.flbl{font-size:13px;font-weight:500;color:var(--ink2)}
+.req{color:var(--red-m)}
+.fi,.fs,.ft{font-size:14px;font-family:inherit;border:1.5px solid var(--line2);border-radius:var(--r);padding:9px 12px;background:var(--card);color:var(--ink);transition:all .15s;width:100%}
+.fi:focus,.fs:focus,.ft:focus{outline:none;border-color:var(--blue-m);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.ft{resize:vertical;min-height:68px}
+.fhint{font-size:11px;color:var(--ink4)}
+
+/* ══ SECTION DIV ═════════════════════════ */
+.sdiv{display:flex;align-items:center;gap:10px;margin:18px 0 12px}
+.sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--line)}
+.sdiv-lbl{font-size:11px;font-weight:600;color:var(--ink4);letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap}
+
+/* ══ OUTPUT ══════════════════════════════ */
+.out-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px}
+.out-item{border:1.5px solid var(--line);border-radius:var(--r);padding:11px;background:var(--card)}
+.out-item.pm{border-color:var(--amber-m);background:var(--amber-l)}
+.out-lbl{font-size:12px;font-weight:600;color:var(--ink3);margin-bottom:5px}
+.out-lbl.pm{color:var(--amber-m)}
+.out-inp{font-size:15px;font-family:'JetBrains Mono',monospace;border:1.5px solid var(--line2);border-radius:6px;padding:7px 9px;width:100%;text-align:right;background:var(--card);color:var(--ink);transition:border-color .15s}
+.out-inp:focus{outline:none;border-color:var(--blue-m)}
+.out-unit{font-size:10px;color:var(--ink4);text-align:right;margin-top:2px}
+
+/* ══ LABOR ═══════════════════════════════ */
+.seg{display:grid;grid-template-columns:1fr 76px 64px 64px 34px;gap:7px;align-items:end;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:7px}
+.seg-lbl{font-size:11px;font-weight:600;color:var(--ink4);margin-bottom:3px}
+
+/* ══ LIVE PANEL ══════════════════════════ */
+.live-box{background:linear-gradient(145deg,#0f172a,#1e3a5f);border-radius:var(--r2);padding:15px 17px;color:#fff;border:1px solid #1e3a8a}
+.live-ttl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:11px;font-family:'JetBrains Mono',monospace}
+.live-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.live-row:last-child{margin:0;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
+.live-lbl{font-size:13px;color:rgba(255,255,255,.5)}
+.live-val{font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.live-val.good{color:#34d399}.live-val.warn{color:#fbbf24}.live-val.bad{color:#f87171}.live-val.dim{font-size:18px;color:rgba(255,255,255,.65)}
+.live-sub{font-size:11px;color:rgba(255,255,255,.3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* ══ PHOTO ═══════════════════════════════ */
+.photo-zone{border:2px dashed var(--line2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .18s;background:var(--bg2)}
+.photo-zone:hover,.photo-zone.drag{border-color:var(--blue-m);background:var(--blue-l)}
+.photo-prev{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.thumb{position:relative;width:66px;height:66px}
+.thumb img{width:100%;height:100%;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.thumb .pdel{position:absolute;top:-5px;right:-5px;width:17px;height:17px;background:var(--red-m);color:#fff;border:none;border-radius:50%;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ══ POMELO BANNER ═══════════════════════ */
+.pm-banner{background:linear-gradient(135deg,var(--amber-l),#fffbeb);border:1.5px solid var(--amber-b);border-radius:var(--r2);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.pm-badge{background:var(--amber-m);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;margin-left:auto;letter-spacing:.5px}
+
+/* ══ BUTTONS ═════════════════════════════ */
+.btn{padding:9px 17px;border-radius:var(--r);font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid var(--line2);background:var(--card);color:var(--ink2);font-family:inherit;transition:all .14s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--bg2);color:var(--ink)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-p{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 8px rgba(30,58,138,.25)}
+.btn-p:hover{background:#1e40af;border-color:#1e40af;box-shadow:0 4px 12px rgba(30,58,138,.35)}
+.btn-g{background:var(--green-l);color:var(--green-m);border-color:var(--green-b)}
+.btn-g:hover{background:#dcfce7}
+.btn-r{background:var(--red-l);color:var(--red-m);border-color:var(--red-b)}
+.btn-r:hover{background:#fecaca}
+.btn-w{background:var(--amber-l);color:var(--amber-m);border-color:var(--amber-b)}
+.btn-i{background:var(--blue-l);color:var(--blue-m);border-color:var(--blue-b)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-lg{padding:12px 24px;font-size:15px}
+.bgrp{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+
+/* ══ TABLE ═══════════════════════════════ */
+.tw{overflow-x:auto;border-radius:var(--r2);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--bg2)}
+th{padding:10px 12px;text-align:left;font-weight:600;color:var(--ink3);font-size:11px;border-bottom:1px solid var(--line);white-space:nowrap;letter-spacing:.3px;text-transform:uppercase}
+td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--ink);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg2)}
+
+/* ══ BADGES ══════════════════════════════ */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.bg{background:var(--green-l);color:var(--green-m)}
+.bb{background:var(--blue-l);color:var(--blue-m)}
+.by{background:var(--amber-l);color:var(--amber-m)}
+.br{background:var(--red-l);color:var(--red-m)}
+
+/* ══ FRUIT TAGS (colored) ════════════════ */
+.tag{display:inline-flex;padding:2px 9px;border-radius:4px;font-size:12px;font-weight:500;border:1px solid var(--line)}
+.tag-柚子{background:#fefce8;color:#854d0e;border-color:#fde047}
+.tag-蘋果{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.tag-芒果{background:#fff7ed;color:#9a3412;border-color:#fdba74}
+.tag-奇異果{background:#f0fdf4;color:#14532d;border-color:#86efac}
+.tag-橘子{background:#fff7ed;color:#7c2d12;border-color:#fb923c}
+.tag-菜頭{background:#f8fafc;color:#475569;border-color:#cbd5e1}
+.tag-其它{background:#f1f5f9;color:#64748b;border-color:#e2e8f0}
+
+/* ══ ALERTS ══════════════════════════════ */
+.alert{padding:10px 14px;border-radius:var(--r);font-size:13px;display:flex;align-items:flex-start;gap:8px;margin-bottom:9px}
+.ae{background:var(--red-l);border:1px solid var(--red-b);color:var(--red)}
+.aw{background:var(--amber-l);border:1px solid var(--amber-b);color:var(--amber)}
+.aok{background:var(--green-l);border:1px solid var(--green-b);color:var(--green)}
+.ai{background:var(--blue-l);border:1px solid var(--blue-b);color:var(--blue)}
+
+/* ══ SUCCESS BANNER ══════════════════════ */
+.suc-banner{background:linear-gradient(135deg,var(--green-l),#ecfdf5);border:1.5px solid var(--green-b);border-radius:var(--r3);padding:20px 22px;margin-bottom:16px}
+.suc-title{font-size:16px;font-weight:700;color:var(--green-m);margin-bottom:10px}
+.suc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;font-size:13px;color:var(--ink2)}
+
+/* ══ STAT CARDS ══════════════════════════ */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:11px;margin-bottom:16px}
+.sc{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc-c,var(--blue));border-radius:var(--r2) var(--r2) 0 0}
+.sc-lbl{font-size:11px;color:var(--ink4);margin-bottom:5px;font-weight:500;letter-spacing:.3px}
+.sc-val{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--sc-c,var(--ink));line-height:1}
+.sc-unit{font-size:12px;color:var(--ink4);margin-top:3px}
+
+/* ══ FILTER BAR ══════════════════════════ */
+.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow-sm)}
+
+/* ══ MODALS ══════════════════════════════ */
+.mov{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:var(--r3);max-width:700px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-xl)}
+.mhd{padding:15px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border-radius:var(--r3) var(--r3) 0 0}
+.mhd h3{font-size:16px;font-weight:700;color:var(--blue)}
+.mbd{padding:20px;overflow-y:auto;flex:1}
+.mft{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:var(--bg2)}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(max-width:500px){.edit-grid{grid-column:1fr}}
+
+/* ══ INFO ROWS ═══════════════════════════ */
+.divider{height:1px;background:var(--line);margin:13px 0}
+.ir{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+.ir:last-child{border:none}
+.iv{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--blue-m)}
+
+/* ══ BOTTOM BAR ══════════════════════════ */
+.btm{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:9px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -4px 20px rgba(0,0,0,.06);z-index:99;backdrop-filter:blur(8px)}
+.sync-inf{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink4)}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--ink4)}
+.sdot.ok{background:var(--green-m)}.sdot.saving{background:var(--amber-m);animation:cdot-p 1s infinite}.sdot.err{background:var(--red-m)}
+
+/* ══ TOAST ═══════════════════════════════ */
+#toasts{position:fixed;top:78px;right:14px;z-index:999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:#1e293b;color:#f8fafc;padding:11px 15px;border-radius:var(--r2);font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);animation:tslide .22s ease;pointer-events:all;max-width:300px}
+.toast.ok{border-left:3px solid #34d399}.toast.err{border-left:3px solid #f87171}.toast.info{border-left:3px solid #60a5fa}
+@keyframes tslide{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══════════════════════════════ -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-ico">🍊</div>
+    <div>
+      <div class="brand-name">五惠食品 · 智慧原料步留率系統</div>
+      <div class="brand-sub">WUHUEI FOOD · YIELD MANAGEMENT SYSTEM v2</div>
+    </div>
+  </div>
+  <div class="tnav-wrap">
+    <button class="tnav on" onclick="showView('input')" id="tnav-input">📥 資料輸入</button>
+    <button class="tnav" onclick="showView('records')" id="tnav-records">🗃️ 批次記錄</button>
+  </div>
+  <div class="conn-pill"><div class="cdot" id="cdot"></div><span id="ctxt">連線中</span></div>
+</div>
+
+<!-- ══ INPUT VIEW ══════════════════════════ -->
+<div class="view on" id="view-input">
+  <div id="val-panel"></div>
+  <div class="steps">
+    <div class="si active" id="si1"><span class="si-n">1</span>品種</div>
+    <div class="si" id="si2"><span class="si-n">2</span>基本資料</div>
+    <div class="si" id="si3"><span class="si-n">3</span>預處理</div>
+    <div class="si" id="si4"><span class="si-n">4</span>人力工時</div>
+    <div class="si" id="si5"><span class="si-n">5</span>產出記錄</div>
+  </div>
+
+  <!-- S1 -->
+  <div id="s1">
+    <div class="card">
+      <div class="ch"><div class="ct">🌿 步驟 1 — 選擇水果品種與作業類型</div></div>
+      <div class="cb">
+        <div class="fgrid" style="margin-bottom:16px">
+          <div class="fg"><label class="flbl">作業日期 <span class="req">*</span></label><input type="date" class="fi" id="i-date"></div>
+          <div class="fg"><label class="flbl">作業地點</label>
+            <select class="fs" id="i-loc"><option value="">-- 選擇地點 --</option><option value="2廠3F原料">2廠3F原料</option><option value="1廠1F">1廠1F</option><option value="其他">其他</option></select></div>
+          <div class="fg"><label class="flbl">輸入人員 <span class="req">*</span></label><input class="fi" id="i-operator" placeholder="請填寫姓名（必填）" required></div>
+          <div class="fg"><label class="flbl">執行人員類型</label>
+            <select class="fs" id="i-optype"><option value="廠內人員">廠內人員（含外勞）</option><option value="開放民眾">開放民眾</option></select></div>
+        </div>
+        <div class="sdiv"><div class="sdiv-lbl">選擇品種</div></div>
+        <div class="fruit-grid" id="fruit-grid"></div>
+        <div id="op-sec" class="hidden">
+          <div class="sdiv"><div class="sdiv-lbl">選擇作業類型</div></div>
+          <div class="op-grid" id="op-grid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="bgrp"><button class="btn btn-p btn-lg" onclick="goStep(2)" id="btn-s1" disabled>下一步 →</button></div>
+  </div>
+
+  <!-- S2 -->
+  <div id="s2" class="hidden">
+    <div class="card">
+      <div class="ch"><div class="ct">📋 步驟 2 — 原料基本資料</div></div>
+      <div class="cb">
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">供應商</label><input class="fi" id="i-sup" placeholder="輸入供應商名稱"></div>
+          <div class="fg"><label class="flbl">本批原料總重量 (KG) <span class="req">*</span></label><input type="number" class="fi" id="i-raw" min="0" step="0.01" placeholder="0.00" oninput="calcLive()"></div>
+          <div class="fg"><label class="flbl">原料長度 (cm)</label><input type="number" class="fi" id="i-len" min="0" step="0.1" placeholder="0.0"></div>
+          <div class="fg"><label class="flbl">原料直徑ø (cm)</label><input type="number" class="fi" id="i-dia" min="0" step="0.1" placeholder="0.0"></div>
+          <div class="fg"><label class="flbl">原料狀況</label>
+            <select class="fs" id="i-cond"><option value="良好">良好</option><option value="普通">普通</option><option value="較差">較差</option></select></div>
+          <div class="fg"><label class="flbl">原料軟硬度</label>
+            <select class="fs" id="i-tex"><option value="">-- 選擇 --</option><option value="偏硬">偏硬</option><option value="適中">適中</option><option value="偏軟">偏軟</option></select></div>
+          <div class="fg full"><label class="flbl">備註</label><textarea class="ft" id="i-note" placeholder="原料來源、特殊狀況、品種規格等..."></textarea></div>
+          <div class="fg full">
+            <label class="flbl">📷 現場照片</label>
+            <div class="photo-zone" onclick="document.getElementById('i-photo').click()" id="pzone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="photoDrop(event)">
+              <div style="font-size:26px;margin-bottom:5px">📷</div>
+              <p style="font-size:13px;color:var(--ink4)">點擊上傳或拖曳照片（可多張）</p>
+            </div>
+            <input type="file" id="i-photo" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+            <div class="photo-prev" id="photo-prev"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bgrp"><button class="btn" onclick="goStep(1)">← 上一步</button><button class="btn btn-p btn-lg" onclick="goStep(3)">下一步 →</button></div>
+  </div>
+
+  <!-- S3 -->
+  <div id="s3" class="hidden">
+    <div class="card">
+      <div class="ch"><div class="ct">⚗️ 步驟 3 — 表面預處理</div><span class="badge bb" id="pt-badge">依品種自動帶入</span></div>
+      <div class="cb">
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">預處理項目</label>
+            <select class="fs" id="i-pt"><option value="">無</option><option value="粗磨">粗磨</option><option value="清洗">清洗</option><option value="殺菁">殺菁</option><option value="浸泡">浸泡</option><option value="榨汁裝桶/殺菁漂水">榨汁裝桶/殺菁漂水</option></select></div>
+          <div class="fg"><label class="flbl">預處理人力 (人)</label><input type="number" class="fi" id="i-ptw" min="0" step="1" placeholder="0" oninput="calcLive()"></div>
+          <div class="fg"><label class="flbl">預處理時間</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="number" class="fi" id="i-pth" min="0" step="1" placeholder="0" style="width:68px" oninput="calcLive()">
+              <span style="font-size:13px;color:var(--ink4)">時</span>
+              <input type="number" class="fi" id="i-ptm" min="0" max="59" step="1" placeholder="0" style="width:68px" oninput="calcLive()">
+              <span style="font-size:13px;color:var(--ink4)">分</span>
+            </div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bgrp"><button class="btn" onclick="goStep(2)">← 上一步</button><button class="btn btn-p btn-lg" onclick="goStep(4)">下一步 →</button></div>
+  </div>
+
+  <!-- S4 -->
+  <div id="s4" class="hidden">
+    <div class="card">
+      <div class="ch"><div class="ct">👷 步驟 4 — 人力與工時</div></div>
+      <div class="cb">
+        <div class="fgrid" style="margin-bottom:12px">
+          <div class="fg"><label class="flbl">作業平台數 (個)</label><input type="number" class="fi" id="i-sta" min="0" step="1" placeholder="0"></div>
+        </div>
+        <div class="sdiv"><div class="sdiv-lbl">多段工時輸入</div></div>
+        <div id="segs"></div>
+        <button class="btn btn-sm" onclick="addSeg()">＋ 新增一段工時</button>
+        <div id="labor-prev" class="hidden" style="margin-top:11px;padding:10px 13px;background:var(--blue-l);border:1px solid var(--blue-b);border-radius:var(--r);font-size:13px;color:var(--blue-m)"></div>
+      </div>
+    </div>
+    <div class="bgrp"><button class="btn" onclick="goStep(3)">← 上一步</button><button class="btn btn-p btn-lg" onclick="goStep(5)">下一步 →</button></div>
+  </div>
+
+  <!-- S5 -->
+  <div id="s5" class="hidden">
+    <div id="pm-banner" class="pm-banner hidden">
+      <span style="font-size:22px">🍋</span>
+      <div><div style="font-weight:600;color:var(--amber-m)">柚子多產出記錄模式</div><div style="font-size:12px;color:var(--ink4)">柚皮、柚脖含柚皮頭、柚肉各自獨立計算步留率</div></div>
+      <span class="pm-badge">POMELO MODE</span>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">⚖️ 步驟 5 — 處理產出記錄 (KG)</div></div>
+      <div class="cb">
+        <div class="out-grid" id="out-grid"></div>
+        <div class="sdiv"><div class="sdiv-lbl">不良品記錄</div></div>
+        <div class="fgrid">
+          <div class="fg">
+            <label class="flbl">不良品總重 (KG)</label>
+            <input type="number" class="fi" id="i-def" min="0" step="0.01" placeholder="0.00" oninput="calcLive()">
+            <span class="fhint" id="def-hint">籽、廢棄果皮、梗、蒂頭、爛果等</span>
+          </div>
+          <div class="fg"><label class="flbl">📊 即時三層分析</label>
+            <div class="live-box">
+              <div class="live-ttl">LIVE · 三層耗損計算</div>
+              <div class="live-row"><span class="live-lbl">步留率</span><span class="live-val" id="lv-y">--%</span></div>
+              <div class="live-row"><span class="live-lbl">不良品率</span><span class="live-val dim" id="lv-d">--%</span></div>
+              <div class="live-row"><span class="live-lbl">作業耗損率</span><span class="live-val dim" id="lv-l">--%</span></div>
+              <div id="lv-u-row" style="display:none" class="live-row"><span class="live-lbl">有效利用率</span><span class="live-val dim" id="lv-u">--%</span></div>
+              <div class="live-sub" id="lv-kg">產出 0 / 不良 0 / 耗損 0 / 投入 0 KG</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bgrp" style="margin-bottom:28px">
+      <button class="btn" onclick="goStep(4)">← 上一步</button>
+      <button class="btn btn-p btn-lg" onclick="submitBatch()" id="btn-sub">✅ 儲存並同步到 Google Sheets</button>
+      <button class="btn" onclick="resetAll()">🔄 全部重填</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RECORDS VIEW ═════════════════════════ -->
+<div class="view" id="view-records">
+  <div class="ph">
+    <div><div class="ph-title">🗃️ 批次記錄管理</div><div class="ph-sub">查詢、修改、刪除所有批次記錄</div></div>
+    <div class="bgrp">
+      <button class="btn btn-g btn-sm" onclick="doExport()">📗 匯出 CSV</button>
+      <button class="btn btn-sm" onclick="loadRecords()">🔄 重新載入</button>
+      <button class="btn btn-p btn-sm" onclick="showView('input')">➕ 新增記錄</button>
+    </div>
+  </div>
+  <div class="fbar">
+    <select class="fs" id="rf-fruit" onchange="filterRecs()" style="width:120px">
+      <option value="">全部品種</option>
+      <option>柚子</option><option>蘋果</option><option>芒果</option>
+      <option>奇異果</option><option>橘子</option><option>菜頭</option>
+    </select>
+    <input type="date" class="fi" id="rf-from" onchange="filterRecs()" style="width:140px">
+    <input type="date" class="fi" id="rf-to" onchange="filterRecs()" style="width:140px">
+    <input class="fi" id="rf-q" oninput="filterRecs()" placeholder="搜尋..." style="width:140px">
+    <button class="btn btn-sm" onclick="clearRF()">✕ 清除</button>
+    <span id="rec-count" style="font-size:12px;color:var(--ink4)"></span>
+  </div>
+  <div class="sg" id="rec-stats"></div>
+  <div id="rec-loading" class="hidden" style="text-align:center;padding:40px;color:var(--ink4)">⏳ 載入中...</div>
+  <div id="rec-empty" class="hidden" style="text-align:center;padding:40px;color:var(--ink4)">尚無記錄</div>
+  <div class="card"><div class="cb" style="padding:0">
+    <div class="tw">
+      <table><thead><tr>
+        <th>#</th><th>日期</th><th>品種</th><th>作業</th><th>地點</th>
+        <th>投入KG</th><th>步留率</th><th>不良品率</th><th>效率</th><th>操作</th>
+      </tr></thead>
+      <tbody id="rec-tbody"></tbody></table>
+    </div>
+  </div></div>
+</div>
+
+<!-- ══ MODALS ════════════════════════════════ -->
+<div class="mov hidden" id="modal-det">
+  <div class="modal">
+    <div class="mhd"><h3 id="det-title">批次詳情</h3><button onclick="closeM('det')" style="background:none;border:none;cursor:pointer;font-size:17px;color:var(--ink3)">✕</button></div>
+    <div class="mbd" id="det-body"></div>
+    <div class="mft">
+      <button class="btn btn-r btn-sm" id="btn-det-del" onclick="confirmDel()">🗑️ 刪除</button>
+      <button class="btn btn-w btn-sm" id="btn-det-edit" onclick="openEdit()">✏️ 修改</button>
+      <button class="btn btn-sm" onclick="closeM('det')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov hidden" id="modal-edit">
+  <div class="modal">
+    <div class="mhd"><h3>✏️ 修改批次記錄</h3><button onclick="closeM('edit')" style="background:none;border:none;cursor:pointer;font-size:17px;color:var(--ink3)">✕</button></div>
+    <div class="mbd">
+      <div class="alert ai" style="margin-bottom:14px">ℹ️ 修改後將直接更新 Google Sheets 對應列</div>
+      <div class="edit-grid">
+        <div class="fg"><label class="flbl">作業日期</label><input type="date" class="fi" id="ed-date"></div>
+        <div class="fg"><label class="flbl">地點</label><input class="fi" id="ed-loc"></div>
+        <div class="fg"><label class="flbl">供應商</label><input class="fi" id="ed-sup"></div>
+        <div class="fg"><label class="flbl">原料重量 (KG)</label><input type="number" class="fi" id="ed-raw" min="0" step="0.01" oninput="calcEdit()"></div>
+        <div class="fg"><label class="flbl">主產出 (KG)</label><input type="number" class="fi" id="ed-out" min="0" step="0.01" oninput="calcEdit()"></div>
+        <div class="fg"><label class="flbl">不良品 (KG)</label><input type="number" class="fi" id="ed-def" min="0" step="0.01" oninput="calcEdit()"></div>
+        <div class="fg"><label class="flbl">人力 (人)</label><input type="number" class="fi" id="ed-wk" min="0" step="1"></div>
+        <div class="fg"><label class="flbl">合計人時 (hr)</label><input type="number" class="fi" id="ed-mh" min="0" step="0.1"></div>
+        <div class="fg"><label class="flbl">原料狀況</label><select class="fs" id="ed-cond"><option>良好</option><option>普通</option><option>較差</option></select></div>
+        <div class="fg"><label class="flbl">軟硬度</label><select class="fs" id="ed-tex"><option value="">--</option><option>偏硬</option><option>適中</option><option>偏軟</option></select></div>
+        <div class="fg" style="grid-column:1/-1"><label class="flbl">備註</label><textarea class="ft" id="ed-note" style="min-height:56px"></textarea></div>
+      </div>
+      <div id="ed-live" class="hidden" style="margin-top:12px;padding:10px 13px;background:var(--blue-l);border:1px solid var(--blue-b);border-radius:var(--r);font-size:13px;color:var(--blue-m)"></div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-sm" onclick="closeM('edit')">取消</button>
+      <button class="btn btn-p btn-sm" onclick="saveEdit()" id="btn-sv">💾 儲存修改</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov hidden" id="modal-del">
+  <div class="modal" style="max-width:420px">
+    <div class="mhd"><h3>🗑️ 確認刪除</h3><button onclick="closeM('del')" style="background:none;border:none;cursor:pointer;font-size:17px;color:var(--ink3)">✕</button></div>
+    <div class="mbd">
+      <div class="alert ae" style="margin-bottom:12px">⚠️ 此操作無法復原！Google Sheets 上的記錄也會同步移除。</div>
+      <div id="del-info" style="font-size:14px;color:var(--ink2);padding:12px;background:var(--bg2);border-radius:var(--r)"></div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-sm" onclick="closeM('del')">取消</button>
+      <button class="btn btn-r btn-sm" onclick="doDelete()" id="btn-del">🗑️ 確認刪除</button>
+    </div>
+  </div>
+</div>
+
+<div class="btm">
+  <div class="sync-inf"><div class="sdot" id="sdot"></div><span id="stxt">就緒</span></div>
+  <div class="bgrp">
+    <button class="btn btn-sm" onclick="showView('records')">🗃️ 批次記錄</button>
+    <button class="btn btn-p btn-sm" onclick="showView('input');resetAll()">➕ 新增記錄</button>
+  </div>
+</div>
+<div id="toasts"></div>
+
+<script>
+var API='https://script.google.com/macros/s/AKfycbzp8GhrGvXay8HiQFBHDzmz6zZY1X5YYlr0TB_XBW6B-iueOyOHAUNJSSvF6qTUZAAdqA/exec';
+var SHEETS_URL='https://docs.google.com/spreadsheets/d/1LrkHXhwOhjikECdqBo2GWzBojks2Y-vNe1XOcsooWOo';
+
+// ── 歷史資料（內建 B001~B022）────────────
+var BUILTIN=[
+  {batchId:'B001',date:'2024/09/06',fruit:'柚子',op:'剝柚子',loc:'2廠3F原料',rawkg:2000,totalOut:1339,defect:26,opLoss:635,yieldRate:66.95,defectRate:1.3,lossRate:31.75,workers:20,grandMH:70,efficiency:7.9,pretreat:'粗磨',condition:'良好',texture:'適中',notes:'9/6廠內人員作業 含粗磨 柚皮頭85kg'},
+  {batchId:'B002',date:'2024/09/07',fruit:'柚子',op:'剝柚子',loc:'2廠3F原料',rawkg:5000,totalOut:3409,defect:83,opLoss:1508,yieldRate:68.18,defectRate:1.66,lossRate:30.16,workers:0,grandMH:0,efficiency:0,pretreat:'粗磨',condition:'良好',texture:'適中',notes:'9/7-9/8 外勞作業 無工時數據'},
+  {batchId:'B003',date:'2024/09/11',fruit:'柚子',op:'剝柚子',loc:'2廠3F原料',rawkg:1000,totalOut:631,defect:29,opLoss:340,yieldRate:63.1,defectRate:2.9,lossRate:34,workers:0,grandMH:0,efficiency:0,pretreat:'粗磨',condition:'良好',texture:'適中',notes:'9/11-9/13 外勞作業'},
+  {batchId:'B004',date:'2024/09/13',fruit:'柚子',op:'剝柚子',loc:'2廠3F原料',rawkg:7200,totalOut:4992,defect:133,opLoss:2075,yieldRate:69.33,defectRate:1.85,lossRate:28.82,workers:0,grandMH:0,efficiency:0,pretreat:'粗磨',condition:'良好',texture:'適中',notes:'9/13 開放鄉親剝柚日'},
+  {batchId:'B005',date:'2024/09/18',fruit:'柚子',op:'剝柚子',loc:'2廠3F原料',rawkg:1000,totalOut:677,defect:21.7,opLoss:301.3,yieldRate:67.7,defectRate:2.17,lossRate:30.13,workers:0,grandMH:0,efficiency:0,pretreat:'粗磨',condition:'良好',texture:'適中',notes:'9/18 廠內人員 含粗磨'},
+  {batchId:'B006',date:'2024/09/06',fruit:'柚子',op:'切柚皮條',loc:'2廠3F原料',rawkg:400,totalOut:400,defect:19,opLoss:0,yieldRate:100,defectRate:4.75,lossRate:0,workers:4,grandMH:26,efficiency:3.8,pretreat:'',condition:'良好',texture:'適中',notes:'9/6 學習效應'},
+  {batchId:'B007',date:'2024/09/08',fruit:'柚子',op:'切柚皮條',loc:'2廠3F原料',rawkg:105,totalOut:105,defect:5,opLoss:0,yieldRate:100,defectRate:4.76,lossRate:0,workers:2,grandMH:5,efficiency:10.5,pretreat:'',condition:'良好',texture:'適中',notes:'9/8'},
+  {batchId:'B008',date:'2024/09/18',fruit:'柚子',op:'切柚皮條',loc:'2廠3F原料',rawkg:227.5,totalOut:227.5,defect:16,opLoss:0,yieldRate:100,defectRate:7.03,lossRate:0,workers:2,grandMH:11,efficiency:10.3,pretreat:'',condition:'良好',texture:'適中',notes:'9/18'},
+  {batchId:'B009',date:'2024/09/09',fruit:'柚子',op:'切柚皮絲',loc:'2廠3F原料',rawkg:400,totalOut:400,defect:16,opLoss:0,yieldRate:100,defectRate:4.0,lossRate:0,workers:4,grandMH:24,efficiency:4.2,pretreat:'',condition:'良好',texture:'適中',notes:'9/9 效率偏低'},
+  {batchId:'B010',date:'2024/09/10',fruit:'柚子',op:'切柚皮絲',loc:'2廠3F原料',rawkg:200,totalOut:200,defect:8,opLoss:0,yieldRate:100,defectRate:4.0,lossRate:0,workers:2,grandMH:13,efficiency:7.7,pretreat:'',condition:'良好',texture:'適中',notes:'9/10'},
+  {batchId:'B011',date:'2024/09/11',fruit:'柚子',op:'切柚皮絲',loc:'2廠3F原料',rawkg:220,totalOut:220,defect:7,opLoss:0,yieldRate:100,defectRate:3.18,lossRate:0,workers:2,grandMH:14,efficiency:7.9,pretreat:'',condition:'良好',texture:'適中',notes:'9/11'},
+  {batchId:'B012',date:'2024/09/12',fruit:'柚子',op:'切柚皮絲',loc:'2廠3F原料',rawkg:323,totalOut:323,defect:11,opLoss:0,yieldRate:100,defectRate:3.41,lossRate:0,workers:2,grandMH:16,efficiency:10.1,pretreat:'',condition:'良好',texture:'適中',notes:'9/12'},
+  {batchId:'B013',date:'2024/09/13',fruit:'柚子',op:'切柚皮絲',loc:'2廠3F原料',rawkg:363,totalOut:363,defect:23,opLoss:0,yieldRate:100,defectRate:6.34,lossRate:0,workers:4,grandMH:25,efficiency:3.6,pretreat:'',condition:'良好',texture:'適中',notes:'9/13 開放日效率偏低'},
+  {batchId:'B014',date:'2024/09/14',fruit:'柚子',op:'切柚皮絲',loc:'2廠3F原料',rawkg:140,totalOut:140,defect:8,opLoss:0,yieldRate:100,defectRate:5.71,lossRate:0,workers:2,grandMH:6,efficiency:11.7,pretreat:'',condition:'良好',texture:'適中',notes:'9/14'},
+  {batchId:'B015',date:'2024/09/18',fruit:'柚子',op:'剝柚肉',loc:'2廠3F原料',rawkg:156,totalOut:156,defect:78,opLoss:0,yieldRate:100,defectRate:50.0,lossRate:0,workers:12,grandMH:30,efficiency:0.4,pretreat:'',condition:'良好',texture:'適中',notes:'9/18 剝柚肉 柚囊78KG計入不良品'},
+  {batchId:'B016',date:'2024/11/21',fruit:'蘋果',op:'蘋果-切削',loc:'2廠3F原料',supplier:'福壽山農場',rawkg:972,totalOut:834.15,defect:137.85,opLoss:0,yieldRate:85.82,defectRate:14.18,lossRate:0,workers:23,grandMH:61.2,efficiency:15.891,pretreat:'',condition:'良好',texture:'適中',notes:'11/21 972KG'},
+  {batchId:'B017',date:'2024/12/11',fruit:'蘋果',op:'蘋果-切削',loc:'2廠3F原料',supplier:'福壽山農場',rawkg:252,totalOut:218.4,defect:33.6,opLoss:0,yieldRate:86.67,defectRate:13.33,lossRate:0,workers:13,grandMH:23,efficiency:10.957,pretreat:'清洗',condition:'良好',texture:'適中',notes:'12/11 252KG'},
+  {batchId:'B018',date:'2024/08/16',fruit:'奇異果',op:'奇異果-切削',loc:'2廠3F原料',rawkg:994,totalOut:812,defect:182,opLoss:0,yieldRate:81.69,defectRate:18.31,lossRate:0,workers:16,grandMH:138,efficiency:7.203,pretreat:'',condition:'良好',texture:'偏硬',notes:'113年8/16 果肉偏硬'},
+  {batchId:'B019',date:'2025/09/01',fruit:'奇異果',op:'奇異果-切削',loc:'2廠3F原料',rawkg:2243.8,totalOut:1770,defect:473.8,opLoss:0,yieldRate:78.89,defectRate:21.12,lossRate:0,workers:33,grandMH:344,efficiency:6.52,pretreat:'',condition:'良好',texture:'適中',notes:'114年9/1~9/2 果肉軟硬參雜'},
+  {batchId:'B020',date:'2025/07/16',fruit:'芒果',op:'芒果-切削',loc:'2廠3F原料',rawkg:2400,totalOut:1632,defect:768,opLoss:0,yieldRate:68.0,defectRate:32.0,lossRate:0,workers:36,grandMH:221,efficiency:10.86,pretreat:'清洗',condition:'普通',texture:'偏軟',notes:'114年7/16 2400KG 108籃'},
+  {batchId:'B021',date:'2025/02/13',fruit:'菜頭',op:'蘿蔔-切削',loc:'2廠3F原料',rawkg:3900,totalOut:3575.5,defect:324.5,opLoss:0,yieldRate:91.68,defectRate:8.32,lossRate:0,workers:44,grandMH:80.7,efficiency:48.347,pretreat:'',condition:'良好',texture:'偏硬',notes:'114年2/13 3900KG 長度約25~40cm'},
+  {batchId:'B022',date:'2026/02/24',fruit:'菜頭',op:'蘿蔔-切削',loc:'2廠3F原料',rawkg:4097.4,totalOut:3765,defect:332.4,opLoss:0,yieldRate:91.89,defectRate:8.11,lossRate:0,workers:32,grandMH:100.1,efficiency:40.94,pretreat:'',condition:'良好',texture:'偏硬',notes:'115年2/24 頭尾無切削 20~45cm'}
+];
+
+// ── FRUIT CONFIG ──────────────────────────
+var FC={
+  '柚子':{
+    ico:'<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#C8D840"/><circle cx="20" cy="20" r="16" fill="#F5F0DC"/><circle cx="20" cy="20" r="12" fill="#F0D060"/><circle cx="20" cy="20" r="4" fill="#E8B820"/><line x1="20" y1="8" x2="20" y2="32" stroke="#D4A010" stroke-width="0.8" opacity=".6"/><line x1="8" y1="20" x2="32" y2="20" stroke="#D4A010" stroke-width="0.8" opacity=".6"/><line x1="11" y1="11" x2="29" y2="29" stroke="#D4A010" stroke-width="0.8" opacity=".5"/><line x1="29" y1="11" x2="11" y2="29" stroke="#D4A010" stroke-width="0.8" opacity=".5"/></svg>',
+    sub:'Pomelo',isPm:true,
+    ops:[{id:'剝柚子',name:'剝柚子（取皮肉）',tag:'粗磨前置',pt:'粗磨'},{id:'切柚皮條',name:'切柚皮條',tag:'後段加工',pt:''},{id:'切柚皮絲',name:'切柚皮絲',tag:'後段加工',pt:''},{id:'剝柚肉',name:'剝柚肉',tag:'取果肉',pt:''}],
+    outs:{'剝柚子':[{id:'pomelo_skin',lbl:'柚皮 (KG)',pm:true,hint:'目標29%'},{id:'pomelo_neck',lbl:'柚脖含柚皮頭 (KG)',pm:true,hint:'柚脖+柚皮頭合計'},{id:'pomelo_flesh',lbl:'柚肉 (KG)',pm:true,hint:'目標67%'}],'切柚皮條':[{id:'strip',lbl:'柚皮條 (KG)'}],'切柚皮絲':[{id:'shred',lbl:'柚皮絲 (KG)'}],'剝柚肉':[{id:'meat',lbl:'去籽柚肉 (KG)'}]},
+    defHint:'蒂頭、不良果、爛果。剝柚肉時柚囊計入不良品'
+  },
+  '蘋果':{ico:'<span style="font-size:36px">🍎</span>',sub:'Apple',isPm:false,
+    ops:[{id:'蘋果-切削',name:'蘋果切削',tag:'切四等份去核',pt:'清洗'}],
+    outs:{'蘋果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'爛果、果皮、蒂頭、核芯'},
+  '芒果':{ico:'<span style="font-size:36px">🥭</span>',sub:'Mango',isPm:false,
+    ops:[{id:'芒果-切削',name:'芒果切削',tag:'削皮去果核',pt:'清洗'}],
+    outs:{'芒果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'果核、果皮、爛果（流失量也計入）'},
+  '奇異果':{ico:'<span style="font-size:36px">🥝</span>',sub:'Kiwi',isPm:false,
+    ops:[{id:'奇異果-切削',name:'奇異果切削',tag:'去頭尾削皮',pt:''}],
+    outs:{'奇異果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'果皮、爛果、頭尾切除'},
+  '橘子':{ico:'<span style="font-size:36px">🍊</span>',sub:'Tangerine',isPm:false,
+    ops:[{id:'剝橘子',name:'剝橘子（取皮肉）',tag:'殺菁前置',pt:'殺菁'},{id:'橘子果肉切片去籽',name:'橘子果肉切片去籽',tag:'後段加工',pt:''},{id:'橘子榨汁',name:'橘子榨汁',tag:'製汁',pt:'榨汁裝桶/殺菁漂水'}],
+    outs:{'剝橘子':[{id:'flesh',lbl:'果肉含籽 (KG)'},{id:'skin',lbl:'橘子皮 (KG)'}],'橘子果肉切片去籽':[{id:'seedless',lbl:'去籽橘子肉 (KG)'}],'橘子榨汁':[{id:'juice',lbl:'橘子果汁 (KG)'},{id:'skin2',lbl:'橘子皮 (KG)'}]},
+    defHint:'籽、爛果、蒂頭'},
+  '菜頭':{
+    ico:'<svg width="40" height="40" viewBox="0 0 40 40"><path d="M16 15 Q11 7 13 4 Q15 8 17 13" fill="#5BA832"/><path d="M20 13 Q20 5 23 4 Q22 8 21 13" fill="#4A9828"/><path d="M24 15 Q29 7 31 9 Q28 12 22 15" fill="#5BA832"/><ellipse cx="20" cy="26" rx="10" ry="11" fill="#F5F5F5" stroke="#D0D0D0" stroke-width="1"/><ellipse cx="22" cy="23" rx="4" ry="5" fill="#fff" opacity=".5"/><path d="M20 37 Q19 40 18 42" stroke="#9DBF80" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
+    sub:'Radish',isPm:false,
+    ops:[{id:'蘿蔔-切削',name:'菜頭切削',tag:'切削→清洗→切塊→切角→秤重',pt:''}],
+    outs:{'蘿蔔-切削':[{id:'flesh',lbl:'菜頭肉 (KG)'}]},defHint:'果皮、爛果、頭尾切除'},
+  '其它':{ico:'<span style="font-size:36px">🌱</span>',sub:'Other',isPm:false,
+    ops:[{id:'自訂作業',name:'自訂作業',tag:'',pt:''}],
+    outs:{'自訂作業':[{id:'out1',lbl:'產出品項1 (KG)'},{id:'out2',lbl:'產出品項2 (KG)'}]},
+    defHint:'不良品、廢棄物'}
+};
+
+// 水果標籤顏色
+var FRUIT_TAG={
+  '柚子':'tag-柚子','蘋果':'tag-蘋果','芒果':'tag-芒果',
+  '奇異果':'tag-奇異果','橘子':'tag-橘子','菜頭':'tag-菜頭','其它':'tag-其它'
+};
+
+var ALL=[],FILT=[],CUR=null,ST={fruit:null,op:null,photos:[],segN:0};
+
+function fmtDate(d){
+  if(!d)return'-';
+  var s=String(d);
+  // ISO format: 2026-06-14T07:00:00.000Z
+  if(s.indexOf('T')>-1)s=s.slice(0,10);
+  // Already formatted: 2026/06/14 or 2024/09/06
+  return s.replace(/-/g,'/');
+}
+
+// ── INIT ──────────────────────────────────
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('i-date').value=new Date().toISOString().slice(0,10);
+  renderFruits();checkConn();
+});
+
+function checkConn(){
+  var dot=document.getElementById('cdot'),txt=document.getElementById('ctxt');
+  fetch('https://www.google.com/favicon.ico',{mode:'no-cors'})
+    .then(function(){dot.className='cdot ok';txt.textContent='已連線';})
+    .catch(function(){dot.className='cdot err';txt.textContent='離線';});
+}
+
+// ── VIEW / STEP ───────────────────────────
+function showView(v){
+  document.querySelectorAll('.view').forEach(function(e){e.classList.remove('on')});
+  document.querySelectorAll('.tnav').forEach(function(e){e.classList.remove('on')});
+  document.getElementById('view-'+v).classList.add('on');
+  document.getElementById('tnav-'+v).classList.add('on');
+  if(v==='records')loadRecords();
+}
+
+function goStep(n){
+  if(n===2&&(!ST.fruit||!ST.op)){toast('請先選擇品種與作業類型','err');return;}
+  if(n===5&&!document.getElementById('i-raw').value){toast('請填寫原料投入量','err');return;}
+  for(var i=1;i<=5;i++){var el=document.getElementById('s'+i);if(el)el.className=i===n?'':'hidden';}
+  for(var j=1;j<=5;j++){var si=document.getElementById('si'+j);if(!si)continue;si.className='si'+(j<n?' done':j===n?' active':'');}
+  if(n===5)buildOut();
+  window.scrollTo(0,0);
+}
+
+// ── FRUITS ────────────────────────────────
+function renderFruits(){
+  var html='';
+  Object.entries(FC).forEach(function(e){
+    var k=e[0],v=e[1];
+    html+='<div class="fcard" onclick="selFruit(\''+k+'\')" id="fc-'+k+'">'+
+      '<div class="fcard-ico">'+v.ico+'</div>'+
+      '<div class="fcard-name">'+k+'</div>'+
+      '<div class="fcard-sub">'+v.sub+'</div></div>';
+  });
+  document.getElementById('fruit-grid').innerHTML=html;
+}
+
+function selFruit(f){
+  ST.fruit=f;ST.op=null;
+  document.querySelectorAll('.fcard').forEach(function(e){e.classList.remove('sel')});
+  document.getElementById('fc-'+f).classList.add('sel');
+  document.getElementById('op-sec').classList.remove('hidden');
+  var cfg=FC[f],html='';
+  cfg.ops.forEach(function(op){
+    html+='<div class="ocard" onclick="selOp(\''+op.id+'\')" id="oc-'+op.id.replace(/[^\w]/g,'_')+'">'+
+      '<div class="ocard-name">'+op.name+'</div>'+
+      (op.tag?'<div class="ocard-tag">🔧 '+op.tag+'</div>':'')+
+      '</div>';
+  });
+  document.getElementById('op-grid').innerHTML=html;
+  document.getElementById('btn-s1').disabled=true;
+}
+
+function selOp(id){
+  ST.op=id;
+  document.querySelectorAll('.ocard').forEach(function(e){e.classList.remove('sel')});
+  var oe=document.getElementById('oc-'+id.replace(/[^\w]/g,'_'));if(oe)oe.classList.add('sel');
+  var cfg=FC[ST.fruit],opCfg=cfg.ops.find(function(o){return o.id===id;});
+  if(opCfg&&opCfg.pt){document.getElementById('i-pt').value=opCfg.pt;document.getElementById('pt-badge').textContent='已自動帶入：'+opCfg.pt;}
+  else{document.getElementById('i-pt').value='';document.getElementById('pt-badge').textContent='無預處理';}
+  document.getElementById('btn-s1').disabled=false;
+}
+
+// ── PHOTOS ────────────────────────────────
+function photoDrop(e){e.preventDefault();document.getElementById('pzone').classList.remove('drag');Array.from(e.dataTransfer.files).forEach(readPhoto);}
+function handlePhotos(e){Array.from(e.target.files).forEach(readPhoto);e.target.value='';}
+function readPhoto(f){var r=new FileReader();r.onload=function(ev){ST.photos.push(ev.target.result);renderPhotos();};r.readAsDataURL(f);}
+function renderPhotos(){document.getElementById('photo-prev').innerHTML=ST.photos.map(function(s,i){return'<div class="thumb"><img src="'+s+'"><button class="pdel" onclick="removePhoto('+i+')">✕</button></div>';}).join('');}
+function removePhoto(i){ST.photos.splice(i,1);renderPhotos();}
+
+// ── LABOR ────────────────────────────────
+function addSeg(){
+  ST.segN++;var id=ST.segN;
+  var div=document.createElement('div');div.id='seg'+id;div.className='seg';
+  div.innerHTML='<div><div class="seg-lbl">說明</div><input class="fi" id="sd'+id+'" placeholder="切削..." style="font-size:13px"></div>'+
+    '<div><div class="seg-lbl">人數</div><input type="number" class="fi" id="sw'+id+'" min="1" step="1" placeholder="0" oninput="calcLive()"></div>'+
+    '<div><div class="seg-lbl">小時</div><input type="number" class="fi" id="sh'+id+'" min="0" step="1" placeholder="0" oninput="calcLive()"></div>'+
+    '<div><div class="seg-lbl">分鐘</div><input type="number" class="fi" id="sm'+id+'" min="0" max="59" step="1" placeholder="0" oninput="calcLive()"></div>'+
+    '<button class="btn btn-r btn-sm" onclick="rmSeg('+id+')" style="padding:7px 9px;align-self:end">✕</button>';
+  document.getElementById('segs').appendChild(div);calcLive();
+}
+function rmSeg(id){var e=document.getElementById('seg'+id);if(e)e.remove();calcLive();}
+function getSegs(){
+  var tmh=0,th=0,mw=0,segs=[];
+  for(var i=1;i<=ST.segN;i++){
+    var sw=document.getElementById('sw'+i);
+    if(!sw||!document.getElementById('seg'+i))continue;
+    var w=parseInt(sw.value)||0,h=parseInt(document.getElementById('sh'+i).value)||0,m=parseInt(document.getElementById('sm'+i).value)||0;
+    var dh=h+m/60,mh=w*dh;tmh+=mh;th+=dh;mw=Math.max(mw,w);
+    var sd=document.getElementById('sd'+i);
+    if(w>0||dh>0)segs.push({desc:sd?sd.value:'',workers:w,hours:dh,manHours:mh});
+  }
+  return{tmh:tmh,th:th,mw:mw,segs:segs};
+}
+
+// ── OUT GRID ──────────────────────────────
+function buildOut(){
+  if(!ST.fruit||!ST.op)return;
+  var cfg=FC[ST.fruit],outs=cfg.outs[ST.op]||[],isPm=cfg.isPm&&ST.op==='剝柚子';
+  document.getElementById('out-grid').innerHTML=outs.map(function(o){
+    return'<div class="out-item'+(o.pm?' pm':'')+'">'+
+      '<div class="out-lbl'+(o.pm?' pm':'')+'">'+o.lbl+(o.hint?'<span style="font-size:10px;color:var(--ink4)">（'+o.hint+'）</span>':'')+'</div>'+
+      '<input type="number" class="out-inp" id="oo-'+o.id+'" min="0" step="0.01" placeholder="0.00" oninput="calcLive()">'+
+      '<div class="out-unit">公斤 KG</div></div>';
+  }).join('');
+  document.getElementById('def-hint').textContent=cfg.defHint||'';
+  if(isPm){document.getElementById('pm-banner').classList.remove('hidden');document.getElementById('lv-u-row').style.display='flex';}
+  else{document.getElementById('pm-banner').classList.add('hidden');document.getElementById('lv-u-row').style.display='none';}
+  calcLive();
+}
+
+// ── LIVE CALC ─────────────────────────────
+function calcLive(){
+  var raw=parseFloat(document.getElementById('i-raw')&&document.getElementById('i-raw').value)||0;
+  var def=parseFloat(document.getElementById('i-def')&&document.getElementById('i-def').value)||0;
+  var tot=0;document.querySelectorAll('.out-inp').forEach(function(i){tot+=parseFloat(i.value)||0;});
+  var loss=Math.max(0,raw-tot-def),yr=raw>0?tot/raw*100:0,dr=raw>0?def/raw*100:0,lr=raw>0?loss/raw*100:0;
+  var lyEl=document.getElementById('lv-y');
+  if(lyEl){lyEl.textContent=yr.toFixed(1)+'%';lyEl.className='live-val '+(yr>=75?'good':yr>=60?'warn':'bad');}
+  var ld=document.getElementById('lv-d');if(ld)ld.textContent=dr.toFixed(1)+'%';
+  var ll=document.getElementById('lv-l');if(ll)ll.textContent=lr.toFixed(1)+'%';
+  var lk=document.getElementById('lv-kg');if(lk)lk.textContent='產出 '+tot.toFixed(1)+' / 不良 '+def.toFixed(1)+' / 耗損 '+loss.toFixed(1)+' / 投入 '+raw.toFixed(1)+' KG';
+  if(ST.fruit==='柚子'&&ST.op==='剝柚子'){var u=raw>0?tot/raw*100:0;var lu=document.getElementById('lv-u');if(lu){lu.textContent=u.toFixed(1)+'%';lu.className='live-val dim '+(u>=95?'good':'warn');}}
+  var gs=getSegs(),ptw=parseInt(document.getElementById('i-ptw')&&document.getElementById('i-ptw').value)||0;
+  var pth=parseInt(document.getElementById('i-pth')&&document.getElementById('i-pth').value)||0;
+  var ptm=parseInt(document.getElementById('i-ptm')&&document.getElementById('i-ptm').value)||0;
+  var ptd=pth+ptm/60,ptmh=ptw*ptd,gmh=gs.tmh+ptmh;
+  var lp=document.getElementById('labor-prev');
+  if(lp&&gmh>0){lp.classList.remove('hidden');var eff=raw>0?(raw/gmh).toFixed(2):0;lp.innerHTML='主作業：<b>'+gs.tmh.toFixed(1)+'</b> 人時　預處理：<b>'+ptmh.toFixed(1)+'</b> 人時　合計：<b>'+gmh.toFixed(1)+'</b> 人時　效率：<b>'+eff+' KG/人時</b>';}
+  else if(lp)lp.classList.add('hidden');
+}
+
+// ── SUBMIT ───────────────────────────────
+function submitBatch(){
+  document.getElementById('val-panel').innerHTML='';
+  var date=document.getElementById('i-date').value,raw=parseFloat(document.getElementById('i-raw').value);
+  var errs=[];
+  var operator=document.getElementById('i-operator').value.trim();
+  if(!operator)errs.push('請填寫輸入人員姓名');
+  if(!date)errs.push('請填寫作業日期');
+  if(!raw||raw<=0)errs.push('請填寫有效的原料投入量');
+  var tot=0,outputs={};
+  document.querySelectorAll('.out-inp').forEach(function(inp){var v=parseFloat(inp.value)||0;if(v>0){outputs[inp.id.replace('oo-','')]=v;tot+=v;}});
+  var def=parseFloat(document.getElementById('i-def').value)||0;
+  if(raw&&tot>raw)errs.push('產出合計超過投入量');
+  if(errs.length){document.getElementById('val-panel').innerHTML=errs.map(function(e){return'<div class="alert ae">❌ '+e+'</div>';}).join('');goStep(1);window.scrollTo(0,0);return;}
+  var gs=getSegs(),ptw=parseInt(document.getElementById('i-ptw').value)||0;
+  var pth=parseInt(document.getElementById('i-pth').value)||0,ptm2=parseInt(document.getElementById('i-ptm').value)||0;
+  var ptd=pth+ptm2/60,ptmh=ptw*ptd,gmh=gs.tmh+ptmh,loss=Math.max(0,raw-tot-def);
+  var batch={id:Date.now(),date:date,fruit:ST.fruit,op:ST.op,operator:operator,optype:document.getElementById('i-optype').value,
+    loc:document.getElementById('i-loc').value,supplier:document.getElementById('i-sup').value,
+    rawkg:raw,len:parseFloat(document.getElementById('i-len').value)||0,dia:parseFloat(document.getElementById('i-dia').value)||0,
+    condition:document.getElementById('i-cond').value,texture:document.getElementById('i-tex').value,
+    notes:document.getElementById('i-note').value,pretreat:document.getElementById('i-pt').value,
+    ptWorkers:ptw,ptDuration:ptd,ptManHours:ptmh,
+    outputs:outputs,defect:def,totalOut:tot,opLoss:loss,
+    yieldRate:raw>0?tot/raw*100:0,defectRate:raw>0?def/raw*100:0,lossRate:raw>0?loss/raw*100:0,
+    workers:gs.mw,stations:parseInt(document.getElementById('i-sta').value)||0,
+    hours:gs.th,manHours:gs.tmh,grandMH:gmh,laborSegs:gs.segs,
+    efficiency:gmh>0?raw/gmh:0,photos:ST.photos.length};
+  doSync(batch);
+}
+
+function doSync(batch){
+  setSS('saving','同步中...');
+  var btn=document.getElementById('btn-sub');btn.disabled=true;btn.textContent='⏳ 同步中...';
+  var encoded=encodeURIComponent(JSON.stringify(batch));
+  fetch(API+'?action=write&data='+encoded,{method:'GET'})
+  .then(function(r){return r.json();})
+  .then(function(res){
+    if(res.status==='ok'){setSS('ok','✅ 已同步');toast('✅ 已成功寫入 Google Sheets！','ok');showSuccess(batch);}
+    else throw new Error(res.message||'錯誤');
+  })
+  .catch(function(err){setSS('err','同步失敗');toast('❌ 同步失敗：'+err.message,'err');})
+  .finally(function(){btn.disabled=false;btn.textContent='✅ 儲存並同步到 Google Sheets';});
+}
+
+function showSuccess(b){
+  document.getElementById('val-panel').innerHTML=
+    '<div class="suc-banner"><div class="suc-title">✅ 批次已成功寫入 Google Sheets！</div>'+
+    '<div class="suc-grid">'+
+    '<span>📅 日期：<b>'+b.date+'</b></span>'+
+    '<span>🍊 品種：<b>'+b.fruit+'</b></span>'+
+    '<span>⚖️ 投入：<b>'+b.rawkg+' KG</b></span>'+
+    '<span>📈 步留率：<b>'+(b.yieldRate||0).toFixed(1)+'%</b></span>'+
+    '</div>'+
+    '<div class="bgrp">'+
+    '<a href="'+SHEETS_URL+'" target="_blank" class="btn btn-g btn-sm">📗 查看 Sheets</a>'+
+    '<button class="btn btn-sm" onclick="clearSucc()">➕ 繼續新增</button>'+
+    '</div></div>';
+  goStep(1);window.scrollTo(0,0);resetAll(true);
+}
+function clearSucc(){document.getElementById('val-panel').innerHTML='';goStep(1);}
+
+function resetAll(keep){
+  if(!keep)document.getElementById('val-panel').innerHTML='';
+  ST.fruit=null;ST.op=null;ST.photos=[];ST.segN=0;
+  document.querySelectorAll('.fcard').forEach(function(e){e.classList.remove('sel')});
+  document.getElementById('op-sec').classList.add('hidden');
+  document.getElementById('btn-s1').disabled=true;
+  ['i-loc','i-sup','i-raw','i-len','i-dia','i-note','i-ptw','i-pth','i-ptm','i-def','i-sta','i-operator'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('i-cond').value='良好';document.getElementById('i-tex').value='';document.getElementById('i-pt').value='';
+  document.getElementById('photo-prev').innerHTML='';document.getElementById('segs').innerHTML='';
+  document.getElementById('i-date').value=new Date().toISOString().slice(0,10);
+  var lp=document.getElementById('labor-prev');if(lp)lp.classList.add('hidden');
+}
+
+// ── RECORDS ──────────────────────────────
+function mkTag(fruit){var cls=FRUIT_TAG[fruit]||'tag-其它';return'<span class="tag '+cls+'">'+fruit+'</span>';}
+
+function loadRecords(){
+  document.getElementById('rec-loading').classList.remove('hidden');
+  document.getElementById('rec-empty').classList.add('hidden');
+  document.getElementById('rec-tbody').innerHTML='';
+  fetch(API+'?action=list&limit=500')
+  .then(function(r){return r.json();})
+  .then(function(data){
+    document.getElementById('rec-loading').classList.add('hidden');
+    var sheets=data.batches||[];
+    var sheetIds=sheets.map(function(r){return r['批次ID']||'';});
+    var builtin=BUILTIN.filter(function(b){return sheetIds.indexOf(b.batchId)<0;}).map(cvtBuiltin);
+    ALL=builtin.concat(sheets);
+    ALL.sort(function(a,b){return String(a['作業日期']).localeCompare(String(b['作業日期']));});
+    filterRecs();renderRecStats();
+  })
+  .catch(function(){
+    document.getElementById('rec-loading').classList.add('hidden');
+    ALL=BUILTIN.map(cvtBuiltin);
+    filterRecs();renderRecStats();
+    toast('載入 Sheets 失敗，顯示內建資料','info');
+  });
+}
+
+function cvtBuiltin(b){
+  return{'批次ID':b.batchId,'作業日期':b.date,'品種':b.fruit,'作業類型':b.op,'作業地點':b.loc,
+    '供應商':b.supplier||'','原料重量KG':b.rawkg,'主產出KG':b.totalOut,'不良品KG':b.defect,
+    '作業耗損KG':b.opLoss,'步留率%':b.yieldRate,'不良品率%':b.defectRate,'耗損率%':b.lossRate,
+    '作業人數':b.workers,'總人力工時hr':b.grandMH,'效率KG/人時':b.efficiency,
+    '預處理':b.pretreat,'原料狀況':b.condition,'原料軟硬度':b.texture,'備註':b.notes,
+    '_builtin':true};
+}
+
+function filterRecs(){
+  var ff=v('rf-fruit'),fd=v('rf-from'),ft=v('rf-to'),fq=v('rf-q').toLowerCase();
+  FILT=ALL.filter(function(r){
+    if(ff&&r['品種']!==ff)return false;
+    if(fd&&String(r['作業日期'])<fd)return false;
+    if(ft&&String(r['作業日期'])>ft)return false;
+    if(fq&&!((r['品種']||'')+(r['作業類型']||'')+(r['作業日期']||'')+(r['備註']||'')).toLowerCase().includes(fq))return false;
+    return true;
+  });
+  document.getElementById('rec-count').textContent='共 '+FILT.length+' 筆';
+  document.getElementById('rec-empty').style.display=FILT.length?'none':'block';
+  renderRecs();
+}
+
+function v(id){var e=document.getElementById(id);return e?e.value:'';}
+
+function renderRecStats(){
+  if(!ALL.length){document.getElementById('rec-stats').innerHTML='';return;}
+  var tRaw=0,tOut=0;
+  ALL.forEach(function(r){tRaw+=parseFloat(r['原料重量KG'])||0;tOut+=parseFloat(r['主產出KG'])||0;});
+  var avgY=tRaw>0?tOut/tRaw*100:0;
+  document.getElementById('rec-stats').innerHTML=[
+    {l:'總批次數',v:ALL.length,u:'批',c:'var(--blue)'},
+    {l:'總投入量',v:tRaw.toFixed(1),u:'KG',c:'var(--amber-m)'},
+    {l:'整體步留率',v:avgY.toFixed(1),u:'%',c:avgY>=70?'var(--green-m)':avgY>=50?'var(--amber-m)':'var(--red-m)'}
+  ].map(function(s){return'<div class="sc" style="--sc-c:'+s.c+'"><div class="sc-lbl">'+s.l+'</div><div class="sc-val">'+s.v+'</div><div class="sc-unit">'+s.u+'</div></div>';}).join('');
+}
+
+function renderRecs(){
+  document.getElementById('rec-tbody').innerHTML=FILT.map(function(r,i){
+    var y=parseFloat(r['步留率%'])||0,yC=y>=70?'bg':y>=50?'by':'br';
+    var isB=r['_builtin'];
+    return'<tr>'+
+      '<td style="color:var(--ink4);font-size:11px;font-family:JetBrains Mono,monospace">'+(i+1)+'</td>'+
+      '<td>'+fmtDate(r['作業日期'])+'</td>'+
+      '<td>'+mkTag(r['品種'])+'</td>'+
+      '<td style="font-size:12px">'+(r['作業類型']||'-')+'</td>'+
+      '<td style="font-size:12px">'+(r['作業地點']||'-')+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace">'+(r['原料重量KG']||'-')+'</td>'+
+      '<td><span class="badge '+yC+'">'+y.toFixed(1)+'%</span></td>'+
+      '<td><span class="badge br">'+(parseFloat(r['不良品率%'])||0).toFixed(1)+'%</span></td>'+
+      '<td style="font-family:JetBrains Mono,monospace">'+(r['效率KG/人時']||'-')+'</td>'+
+      '<td><div class="bgrp">'+
+        '<button class="btn btn-i btn-sm" onclick="showDet('+i+')">詳情</button>'+
+        (!isB?'<button class="btn btn-w btn-sm" onclick="openEditD('+i+')">✏️</button>':'')+
+        (!isB?'<button class="btn btn-r btn-sm" onclick="confirmDelD('+i+')">🗑️</button>':'<span class="badge bb" style="padding:4px 8px;font-size:10px">歷史資料</span>')+
+      '</div></td></tr>';
+  }).join('');
+}
+
+function clearRF(){['rf-fruit','rf-from','rf-to','rf-q'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});filterRecs();}
+
+// ── DETAIL MODAL ──────────────────────────
+function showDet(i){
+  CUR=FILT[i];var r=CUR;
+  document.getElementById('det-title').textContent=(r['品種']||'')+' — '+(r['作業類型']||'')+' ('+r['作業日期']+')';
+  var y=parseFloat(r['步留率%'])||0;
+  document.getElementById('det-body').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+    '<div><div style="font-size:11px;color:var(--ink4);font-weight:600;letter-spacing:.5px;margin-bottom:7px">基本資訊</div>'+
+    '<div class="ir"><span>日期</span><span class="iv">'+fmtDate(r['作業日期'])+'</span></div>'+
+    '<div class="ir"><span>地點</span><span class="iv">'+(r['作業地點']||'-')+'</span></div>'+
+    '<div class="ir"><span>供應商</span><span class="iv">'+(r['供應商']||'-')+'</span></div>'+
+    '<div class="ir"><span>原料狀況</span><span class="iv">'+(r['原料狀況']||'-')+'</span></div>'+
+    '<div class="ir"><span>軟硬度</span><span class="iv">'+(r['原料軟硬度']||'-')+'</span></div>'+
+    '<div class="ir"><span>投入重量</span><span class="iv">'+r['原料重量KG']+' KG</span></div></div>'+
+    '<div><div style="font-size:11px;color:var(--ink4);font-weight:600;letter-spacing:.5px;margin-bottom:7px">三層分析</div>'+
+    '<div style="background:linear-gradient(145deg,#0f172a,#1e3a5f);border-radius:var(--r2);padding:14px;color:#fff;border:1px solid #1e3a8a">'+
+    '<div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:12px;color:rgba(255,255,255,.5)">步留率</span><span style="font-size:22px;font-weight:700;font-family:JetBrains Mono,monospace;color:'+(y>=70?'#34d399':y>=50?'#fbbf24':'#f87171')+'">'+y.toFixed(1)+'%</span></div>'+
+    '<div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:12px;color:rgba(255,255,255,.5)">不良品率</span><span style="font-size:17px;font-weight:600;color:#f87171">'+(parseFloat(r['不良品率%'])||0).toFixed(1)+'%</span></div>'+
+    '<div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:rgba(255,255,255,.5)">作業耗損率</span><span style="font-size:17px;font-weight:600;color:#fbbf24">'+(parseFloat(r['耗損率%'])||0).toFixed(1)+'%</span></div></div>'+
+    '<div class="ir" style="margin-top:8px"><span>產出合計</span><span class="iv">'+r['主產出KG']+' KG</span></div>'+
+    '<div class="ir"><span>不良品</span><span class="iv">'+(r['不良品KG']||0)+' KG</span></div></div></div>'+
+    '<div class="divider"></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+    '<div><div style="font-size:11px;color:var(--ink4);font-weight:600;letter-spacing:.5px;margin-bottom:7px">人力工時</div>'+
+    '<div class="ir"><span>作業人數</span><span class="iv">'+(r['作業人數']||'-')+' 人</span></div>'+
+    '<div class="ir"><span>合計人時</span><span class="iv">'+(r['總人力工時hr']||'-')+' hr</span></div>'+
+    '<div class="ir"><span>效率</span><span class="iv">'+(r['效率KG/人時']||'-')+' KG/人時</span></div></div>'+
+    '<div><div style="font-size:11px;color:var(--ink4);font-weight:600;letter-spacing:.5px;margin-bottom:7px">預處理 & 規格</div>'+
+    '<div class="ir"><span>預處理</span><span class="iv">'+(r['預處理']||'無')+'</span></div>'+
+    '<div class="ir"><span>原料尺寸</span><span class="iv">'+(r['原料尺寸']||'-')+'</span></div></div></div>'+
+    (r['備註']?'<div class="divider"></div><div style="font-size:13px;color:var(--ink2)">📝 '+r['備註']+'</div>':'')+
+    (r['_builtin']?'<div class="divider"></div><div class="alert ai">ℹ️ 此為歷史資料，如需修改請至 Google Sheets 直接操作</div>':'');
+  document.getElementById('btn-det-del').style.display=r['_builtin']?'none':'';
+  document.getElementById('btn-det-edit').style.display=r['_builtin']?'none':'';
+  document.getElementById('modal-det').classList.remove('hidden');
+}
+
+// ── EDIT ──────────────────────────────────
+function openEdit(){
+  closeM('det');if(!CUR)return;var r=CUR;
+  document.getElementById('ed-date').value=r['作業日期']||'';
+  document.getElementById('ed-loc').value=r['作業地點']||'';
+  document.getElementById('ed-sup').value=r['供應商']||'';
+  document.getElementById('ed-raw').value=r['原料重量KG']||'';
+  document.getElementById('ed-out').value=r['主產出KG']||'';
+  document.getElementById('ed-def').value=r['不良品KG']||'';
+  document.getElementById('ed-wk').value=r['作業人數']||'';
+  document.getElementById('ed-mh').value=r['總人力工時hr']||'';
+  document.getElementById('ed-cond').value=r['原料狀況']||'良好';
+  document.getElementById('ed-tex').value=r['原料軟硬度']||'';
+  document.getElementById('ed-note').value=r['備註']||'';
+  calcEdit();document.getElementById('modal-edit').classList.remove('hidden');
+}
+function openEditD(i){CUR=FILT[i];openEdit();}
+
+function calcEdit(){
+  var raw=parseFloat(document.getElementById('ed-raw').value)||0;
+  var out=parseFloat(document.getElementById('ed-out').value)||0;
+  var def=parseFloat(document.getElementById('ed-def').value)||0;
+  var loss=Math.max(0,raw-out-def),yr=raw>0?out/raw*100:0,dr=raw>0?def/raw*100:0,lr=raw>0?loss/raw*100:0;
+  var el=document.getElementById('ed-live');
+  if(raw>0){el.classList.remove('hidden');el.innerHTML='步留率：<b>'+yr.toFixed(1)+'%</b>　不良品率：<b>'+dr.toFixed(1)+'%</b>　耗損率：<b>'+lr.toFixed(1)+'%</b>';}
+  else el.classList.add('hidden');
+}
+
+function saveEdit(){
+  var btn=document.getElementById('btn-sv');btn.disabled=true;btn.textContent='⏳ 儲存中...';
+  var raw=parseFloat(document.getElementById('ed-raw').value)||0;
+  var out=parseFloat(document.getElementById('ed-out').value)||0;
+  var def=parseFloat(document.getElementById('ed-def').value)||0;
+  var mh=parseFloat(document.getElementById('ed-mh').value)||0;
+  var loss=Math.max(0,raw-out-def);
+  var d={batchId:CUR['批次ID'],date:document.getElementById('ed-date').value,
+    loc:document.getElementById('ed-loc').value,supplier:document.getElementById('ed-sup').value,
+    rawkg:raw,totalOut:out,defect:def,opLoss:loss,
+    yieldRate:raw>0?out/raw*100:0,defectRate:raw>0?def/raw*100:0,lossRate:raw>0?loss/raw*100:0,
+    workers:parseInt(document.getElementById('ed-wk').value)||0,grandMH:mh,efficiency:mh>0?raw/mh:0,
+    condition:document.getElementById('ed-cond').value,texture:document.getElementById('ed-tex').value,
+    notes:document.getElementById('ed-note').value};
+  fetch(API+'?action=update&data='+encodeURIComponent(JSON.stringify(d)))
+  .then(function(r){return r.json();})
+  .then(function(res){if(res.status==='ok'){toast('✅ 修改已儲存','ok');closeM('edit');loadRecords();}else throw new Error(res.message);})
+  .catch(function(err){toast('❌ 修改失敗：'+err.message,'err');})
+  .finally(function(){btn.disabled=false;btn.textContent='💾 儲存修改';});
+}
+
+// ── DELETE ───────────────────────────────
+function confirmDel(){closeM('det');if(!CUR)return;showDelM();}
+function confirmDelD(i){CUR=FILT[i];showDelM();}
+function showDelM(){
+  var r=CUR;
+  document.getElementById('del-info').innerHTML='<b>'+r['品種']+'</b> — '+r['作業類型']+' ('+r['作業日期']+')　投入 '+r['原料重量KG']+' KG';
+  document.getElementById('modal-del').classList.remove('hidden');
+}
+function doDelete(){
+  var btn=document.getElementById('btn-del');btn.disabled=true;btn.textContent='⏳ 刪除中...';
+  fetch(API+'?action=delete&data='+encodeURIComponent(JSON.stringify({batchId:CUR['批次ID']})))
+  .then(function(r){return r.json();})
+  .then(function(res){if(res.status==='ok'){toast('✅ 已刪除','ok');closeM('del');loadRecords();}else throw new Error(res.message);})
+  .catch(function(err){toast('❌ 刪除失敗：'+err.message,'err');})
+  .finally(function(){btn.disabled=false;btn.textContent='🗑️ 確認刪除';});
+}
+
+// ── EXPORT ───────────────────────────────
+function doExport(){
+  if(!ALL.length){toast('無資料可匯出','info');return;}
+  var headers=['批次ID','作業日期','品種','作業類型','作業地點','供應商','原料重量KG','主產出KG','不良品KG','作業耗損KG','步留率%','不良品率%','耗損率%','作業人數','總人力工時hr','效率KG/人時','預處理','原料狀況','原料軟硬度','備註'];
+  var rows=[headers.join(',')];
+  ALL.forEach(function(r){
+    rows.push(headers.map(function(h){
+      var val=r[h]!==undefined?String(r[h]):'';
+      if(val.includes(',')||val.includes('"')||val.includes('\n'))val='"'+val.replace(/"/g,'""')+'"';
+      return val;
+    }).join(','));
+  });
+  var blob=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='五惠原料處理記錄_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();toast('✅ CSV 已匯出（含所有歷史資料）','ok');
+}
+
+// ── HELPERS ──────────────────────────────
+function closeM(t){document.getElementById('modal-'+t).classList.add('hidden');}
+function setSS(s,msg){var d=document.getElementById('sdot'),t=document.getElementById('stxt');d.className='sdot '+s;t.textContent=msg;}
+function toast(msg,type){
+  var d=document.createElement('div');d.className='toast '+(type||'info');d.textContent=msg;
+  document.getElementById('toasts').appendChild(d);setTimeout(function(){d.remove();},3200);
+}
+</script>
+</body>
+</html>
