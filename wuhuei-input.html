@@ -417,7 +417,7 @@ tr:hover td{background:var(--bg2)}
     <select class="fs" id="rf-fruit" onchange="filterRecs()" style="width:120px">
       <option value="">全部品種</option>
       <option>柚子</option><option>蘋果</option><option>芒果</option>
-      <option>奇異果</option><option>橘子</option><option>菜頭</option>
+      <option>奇異果</option><option>橘子</option><option>蘿蔔</option>
     </select>
     <input type="date" class="fi" id="rf-from" onchange="filterRecs()" style="width:140px">
     <input type="date" class="fi" id="rf-to" onchange="filterRecs()" style="width:140px">
@@ -859,16 +859,19 @@ function renderRecStats(){
 
 // 安全讀取欄位值（同時嘗試有空格/無空格的欄位名）
 function getVal(r, key){
+  if(!r)return null;
   var v=r[key];
   if(v!==undefined&&v!==null&&v!=='')return v;
-  // 嘗試去掉空格
-  var k2=key.replace(/\s/g,'');
+  // 嘗試帶空格版本（Sheets有時欄位名有空格）
+  var k2=key.replace('KG',' KG').replace('hr',' hr');
   v=r[k2];
   if(v!==undefined&&v!==null&&v!=='')return v;
   return null;
 }
 function getNum(r, key){
-  return parseFloat(getVal(r,key))||0;
+  var v=getVal(r,key);
+  if(v===null||v===undefined||v==='')return 0;
+  return parseFloat(String(v).replace(/[^0-9.-]/g,''))||0;
 }
 function pctVal(v){
   // 處理 "91.90%" 字串 或 數字 0.919 或 91.9
