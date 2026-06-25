@@ -731,6 +731,10 @@ function submitBatch(){
   if(!raw||raw<=0)errs.push('請填寫有效的原料投入量');
   var tot=0,outputs={};
   document.querySelectorAll('.out-inp').forEach(function(inp){var v=parseFloat(inp.value)||0;if(v>0){outputs[inp.id.replace('oo-','')]=v;tot+=v;}});
+  // 柚子剝柚子：主產出只算柚肉（pomelo_flesh），柚皮/柚脖放副產出
+  if(ST.fruit==='柚子'&&String(ST.op).indexOf('剝柚子')>=0){
+    tot=parseFloat((document.getElementById('oo-pomelo_flesh')||{}).value)||0;
+  }
   var def=parseFloat(document.getElementById('i-def').value)||0;
   if(raw&&tot>raw*1.1)errs.push('產出合計（'+tot.toFixed(1)+'KG）超過投入量（'+raw+'KG），請檢查填寫數值');
   // 步留率合理性檢查

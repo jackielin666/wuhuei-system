@@ -355,13 +355,15 @@ function cvtSheet(r){
   var raw=parseFloat(r['原料重量 KG'])||parseFloat(r['原料重量KG'])||0;
   var out=parseFloat(r['主產出 KG'])||parseFloat(r['主產出KG'])||0;
   var def=parseFloat(r['不良品 KG'])||parseFloat(r['不良品KG'])||0;
+  var sub1=parseFloat(r['副產出1 KG'])||parseFloat(r['副產出1KG'])||0;
+  var sub2=parseFloat(r['副產出2 KG'])||parseFloat(r['副產出2KG'])||0;
   // 步留率：Sheets存 "67.00%" 或小數 0.67，統一轉成百分比數字
   var yr=parseFloat(String(r['步留率%']||'').replace('%',''))||0;
   if(yr>0&&yr<1)yr=yr*100;  // 小數格式轉換
   var dr=parseFloat(String(r['不良品率%']||'').replace('%',''))||0;
   if(dr>0&&dr<1)dr=dr*100;
   return{id:r['批次ID'],date:fmtDate(r['作業日期']),fruit:r['品種'],op:r['作業類型'],
-    raw:raw,out:out,def:def,yr:yr,dr:dr,
+    raw:raw,out:out,def:def,yr:yr,dr:dr,sub1:sub1,sub2:sub2,
     workers:parseFloat(r['作業人數'])||0,
     mh:parseFloat(r['總人力工時hr'])||0,
     eff:parseFloat(r['效率KG/人時'])||0,
@@ -483,7 +485,13 @@ function renderBreakdown(rows){
   rows.forEach(function(r){
     tRaw+=r.raw;
     var detail=null;
-    if(SEL_FRUIT==='柚子'&&SEL_OP==='剝柚子')detail=POMELO_DETAIL[r.id];
+    if(SEL_FRUIT==='柚子'&&SEL_OP==='剝柚子'){
+      detail=POMELO_DETAIL[r.id];
+      // 若內建資料找不到，用主表副產出補（新增資料：出1=柚皮, 出2=柚脖, 主產出=柚肉）
+      if(!detail&&(r.sub1||r.sub2||r.out)){
+        detail={skin:r.sub1||0,neck:r.sub2||0,flesh:r.out||0,raw:r.raw};
+      }
+    }
     if(SEL_FRUIT==='橘子')detail=TANGERINE_DETAIL[r.id];
     if(detail){
       cfg.parts.forEach(function(p){
@@ -511,7 +519,12 @@ function renderBreakdown(rows){
   var datasets=cfg.parts.map(function(p){
     var data=rows.map(function(r){
       var detail=null;
-      if(SEL_FRUIT==='柚子'&&SEL_OP==='剝柚子')detail=POMELO_DETAIL[r.id];
+      if(SEL_FRUIT==='柚子'&&SEL_OP==='剝柚子'){
+        detail=POMELO_DETAIL[r.id];
+        if(!detail&&(r.sub1||r.sub2||r.out)){
+          detail={skin:r.sub1||0,neck:r.sub2||0,flesh:r.out||0,raw:r.raw};
+        }
+      }
       if(SEL_FRUIT==='橘子')detail=TANGERINE_DETAIL[r.id];
       if(p.key==='def')return r.raw>0?r.def/r.raw*100:0;
       if(detail&&detail[p.key]!==undefined)return r.raw>0?detail[p.key]/r.raw*100:0;
