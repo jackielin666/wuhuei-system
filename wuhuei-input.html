@@ -713,12 +713,11 @@ function readPhoto(f){
           case 3:ctx.transform(-1,0,0,-1,sw,sh);break;
           case 4:ctx.transform(1,0,0,-1,0,sh);break;
           case 5:ctx.transform(0,1,1,0,0,0);break;
-          case 6:ctx.transform(0,1,-1,0,sh,0);break;
-          case 7:ctx.transform(0,-1,-1,0,sh,sw);break;
-          case 8:ctx.transform(0,-1,1,0,0,sw);break;
+          case 6:ctx.rotate(Math.PI/2);ctx.drawImage(img,0,-sh,sw,sh);break;
+          case 7:{ctx.rotate(Math.PI/2);ctx.scale(-1,1);ctx.drawImage(img,-sw,-sh,sw,sh);break;}
+          case 8:ctx.rotate(-Math.PI/2);ctx.drawImage(img,-sw,0,sw,sh);break;
+          default:ctx.drawImage(img,0,0,sw,sh);
         }
-        // 用原始 sw,sh 繪圖，旋轉後才能正確呈現方向
-        ctx.drawImage(img,0,0,sw,sh);
         ctx.restore();
         var dataUrl=canvas.toDataURL('image/jpeg',0.6);
         ST.photos.push({dataUrl:dataUrl,type:f.type||'image/jpeg',name:f.name});
@@ -881,11 +880,11 @@ function doSync(batch){
   .then(function(res){
     if(res.status==='ok'){
       setSS('ok','✅ 已同步');
-      toast('✅ 已成功寫入 Google Sheets！','ok');
-      showSuccess(batch);
-      // 若有照片，延遲2秒再上傳（確保 Apps Script 寫入完成）
+      // ★ 必須在showSuccess/resetAll之前複製照片！
       var _bid=res.batchId||batch.id;
-      var _photos=ST.photos.slice(); // 立即複製，避免resetAll清空
+      var _photos=ST.photos.slice();
+      toast('✅ 已成功寫入 Google Sheets！','ok');
+      showSuccess(batch); // 這裡面會 resetAll，清空 ST.photos
       if(_photos.length>0){
         toast('📷 資料已儲存，準備上傳照片...','info');
         setTimeout(function(){uploadPhotos(_bid,_photos);},3000);
@@ -1187,11 +1186,11 @@ function readPhotoForEdit(f){
           case 3:ctx.transform(-1,0,0,-1,sw,sh);break;
           case 4:ctx.transform(1,0,0,-1,0,sh);break;
           case 5:ctx.transform(0,1,1,0,0,0);break;
-          case 6:ctx.transform(0,1,-1,0,sh,0);break;
-          case 7:ctx.transform(0,-1,-1,0,sh,sw);break;
-          case 8:ctx.transform(0,-1,1,0,0,sw);break;
+          case 6:ctx.rotate(Math.PI/2);ctx.drawImage(img,0,-sh,sw,sh);break;
+          case 7:{ctx.rotate(Math.PI/2);ctx.scale(-1,1);ctx.drawImage(img,-sw,-sh,sw,sh);break;}
+          case 8:ctx.rotate(-Math.PI/2);ctx.drawImage(img,-sw,0,sw,sh);break;
+          default:ctx.drawImage(img,0,0,sw,sh);
         }
-        ctx.drawImage(img,0,0,sw,sh);
         ctx.restore();
         var dataUrl=canvas.toDataURL('image/jpeg',0.6);
         EDIT_PHOTOS.push({dataUrl:dataUrl,type:f.type||'image/jpeg'});
