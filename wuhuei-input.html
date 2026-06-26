@@ -648,7 +648,7 @@ function selFruit(f){
   document.getElementById('fc-'+f).classList.add('sel');
   document.getElementById('op-sec').classList.remove('hidden');
   var cfg=FC[f],html='';
-  cfg.ops.forEach(function(op){
+  cfg.ops.forEach(function(op,i){
     html+='<div class="ocard" data-opid="'+op.id+'" id="oc-'+i+'" onclick="selOp(this.dataset.opid)">'+
       '<div class="ocard-name">'+op.name+'</div>'+
       (op.tag?'<div class="ocard-tag">🔧 '+op.tag+'</div>':'')+
