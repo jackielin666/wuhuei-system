@@ -149,6 +149,9 @@ body{font-family:'Noto Sans TC','Inter',sans-serif;background:var(--bg);color:va
 .btn:hover{background:var(--bg2);color:var(--ink)}
 .btn:active{transform:scale(.98)}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-lock{background:transparent;border-color:var(--line2);color:var(--ink3);font-size:13px}
+.btn-lock.locked{color:#f59e0b;border-color:#f59e0b}
+.locked-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:3px 7px;border-radius:4px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;white-space:nowrap}
 .btn-p{background:#2d6a4f;color:#fff;border-color:#2d6a4f;box-shadow:0 2px 8px rgba(45,106,79,.25)}
 .btn-p:hover{background:#1b4332;border-color:#1b4332;box-shadow:0 4px 12px rgba(45,106,79,.35)}
 .btn-g{background:var(--green-l);color:var(--green-m);border-color:var(--green-b)}
@@ -682,21 +685,25 @@ function readPhoto(f){
         var canvas=document.createElement('canvas');
         var ctx=canvas.getContext('2d');
         var w=img.width,h=img.height;
-        if(orient>=5&&orient<=8){canvas.width=h;canvas.height=w;}
-        else{canvas.width=w;canvas.height=h;}
+        // 長邊縮小至1280px
+        var MAX=1280;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+        var sw=w,sh=h;
+        if(orient>=5&&orient<=8){canvas.width=sh;canvas.height=sw;}
+        else{canvas.width=sw;canvas.height=sh;}
         ctx.save();
         switch(orient){
-          case 2:ctx.transform(-1,0,0,1,w,0);break;
-          case 3:ctx.transform(-1,0,0,-1,w,h);break;
-          case 4:ctx.transform(1,0,0,-1,0,h);break;
+          case 2:ctx.transform(-1,0,0,1,sw,0);break;
+          case 3:ctx.transform(-1,0,0,-1,sw,sh);break;
+          case 4:ctx.transform(1,0,0,-1,0,sh);break;
           case 5:ctx.transform(0,1,1,0,0,0);break;
-          case 6:ctx.transform(0,1,-1,0,h,0);break;
-          case 7:ctx.transform(0,-1,-1,0,h,w);break;
-          case 8:ctx.transform(0,-1,1,0,0,w);break;
+          case 6:ctx.transform(0,1,-1,0,sh,0);break;
+          case 7:ctx.transform(0,-1,-1,0,sh,sw);break;
+          case 8:ctx.transform(0,-1,1,0,0,sw);break;
         }
-        ctx.drawImage(img,0,0);
+        ctx.drawImage(img,0,0,sw,sh);
         ctx.restore();
-        var dataUrl=canvas.toDataURL('image/jpeg',0.85);
+        var dataUrl=canvas.toDataURL('image/jpeg',0.75);
         ST.photos.push({dataUrl:dataUrl,type:f.type||'image/jpeg',name:f.name});
         renderPhotos();
       });
@@ -877,17 +884,43 @@ function doSync(batch){
 function uploadPhotos(batchId, photos){
   if(!photos||photos.length===0)return;
   toast('📷 照片上傳中...','info');
+  // 逐張上傳，避免一次傳太多造成逾時
   var photoData=photos.map(function(p){
     var base64=p.dataUrl?p.dataUrl.split(',')[1]:'';
     return{data:base64,type:p.type||'image/jpeg'};
   });
-  var payload={batchId:batchId,photos:photoData};
-  fetch(API+'?action=uploadPhotos&data='+encodeURIComponent(JSON.stringify(payload)),{method:'GET'})
+  var payload=JSON.stringify({action:'uploadPhotos',batchId:batchId,photos:photoData});
+  fetch(API,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:payload
+  })
   .then(function(r){return r.json();})
   .then(function(res){
     if(res.status==='ok')toast('📷 照片已存入 Google Drive！','ok');
+    else toast('⚠️ 照片上傳失敗：'+(res.message||''),'info');
   })
-  .catch(function(){toast('⚠️ 照片上傳失敗，資料已儲存','info');});
+  .catch(function(err){toast('⚠️ 照片上傳失敗，資料已儲存','info');console.error(err);});
+}
+
+function toggleLock(i){
+  var r=FILT[i];
+  if(!r||r['_builtin'])return;
+  var batchId=r['批次ID']||r['batchId'];
+  var curLocked=r['鎖定']==='Y'||r['鎖定']===true;
+  var newLock=curLocked?'N':'Y';
+  var msg=newLock==='Y'?'確定要鎖定此筆資料？鎖定後無法編輯或刪除。':'確定要解除鎖定？';
+  if(!confirm(msg))return;
+  fetch(API+'?action=lock&data='+encodeURIComponent(JSON.stringify({batchId:batchId,locked:newLock})),{method:'GET'})
+  .then(function(r){return r.json();})
+  .then(function(res){
+    if(res.status==='ok'){
+      r['鎖定']=newLock;
+      toast(newLock==='Y'?'🔒 已鎖定此筆資料':'🔓 已解除鎖定','ok');
+      renderRecs();
+    } else toast('❌ 操作失敗','err');
+  })
+  .catch(function(){toast('❌ 網路錯誤','err');});
 }
 
 function showSuccess(b){
@@ -1013,6 +1046,7 @@ function renderRecs(){
     var yC=y>=70?'bg':y>=50?'by':'br';
     var raw=parseFloat(r['原料重量 KG'])||0;
     var isB=r['_builtin'];
+      var isLocked=r['鎖定']==='Y'||r['鎖定']===true;
     return'<tr>'+
       '<td style="color:var(--ink4);font-size:13px;font-family:JetBrains Mono,monospace;white-space:nowrap">'+(i+1)+'</td>'+
       '<td style="font-size:14px;white-space:nowrap">'+fmtDate(r['作業日期'])+'</td>'+
@@ -1025,8 +1059,11 @@ function renderRecs(){
       '<td style="font-family:JetBrains Mono,monospace;font-size:13px;text-align:right">'+(parseFloat(r['效率KG/人時'])||0).toFixed(2)+'</td>'+
       '<td><div class="bgrp" style="flex-wrap:nowrap">'+
         '<button class="btn btn-i btn-sm" onclick="showDet('+i+')" style="white-space:nowrap">詳情</button>'+
-        (!isB?'<button class="btn btn-w btn-sm" onclick="openEditD('+i+')" title="修改此筆記錄">✏️</button>':'')+
-        (!isB?'<button class="btn btn-r btn-sm" onclick="confirmDelD('+i+')" title="刪除此筆記錄">🗑️</button>':'<span class="badge bb" style="padding:4px 8px;font-size:10px;white-space:nowrap">歷史資料</span>')+
+        (!isB?'<button class="btn btn-lock btn-sm'+(isLocked?' locked':'')+' " onclick="toggleLock('+i+')" title="'+(isLocked?'解除鎖定':'鎖定此筆資料')+'">'+(isLocked?'🔒':'🔓')+'</button>':'')+
+        (!isB&&!isLocked?'<button class="btn btn-w btn-sm" onclick="openEditD('+i+')" title="修改此筆記錄">✏️</button>':'')+
+        (!isB&&!isLocked?'<button class="btn btn-r btn-sm" onclick="confirmDelD('+i+')" title="刪除此筆記錄">🗑️</button>':'')+
+        (isB?'<span class="badge bb" style="padding:4px 8px;font-size:10px;white-space:nowrap">歷史資料</span>':'')+
+        (isLocked&&!isB?'<span class="locked-badge">🔒 已鎖定</span>':'')+
       '</div></td></tr>';
   }).join('');
 }
@@ -1065,8 +1102,9 @@ function showDet(i){
     '<div class="ir"><span>原料尺寸</span><span class="iv">'+(r['原料尺寸']||'-')+'</span></div></div></div>'+
     (r['備註']?'<div class="divider"></div><div style="font-size:13px;color:var(--ink2)">📝 '+r['備註']+'</div>':'')+
     (r['_builtin']?'<div class="divider"></div><div class="alert ai">ℹ️ 此為歷史資料，如需修改請至 Google Sheets 直接操作</div>':'');
-  document.getElementById('btn-det-del').style.display=r['_builtin']?'none':'';
-  document.getElementById('btn-det-edit').style.display=r['_builtin']?'none':'';
+  var detLocked=r['鎖定']==='Y'||r['鎖定']===true;
+  document.getElementById('btn-det-del').style.display=(r['_builtin']||detLocked)?'none':'';
+  document.getElementById('btn-det-edit').style.display=(r['_builtin']||detLocked)?'none':'';
   document.getElementById('modal-det').classList.remove('hidden');
 }
 
@@ -1093,21 +1131,24 @@ function readPhotoForEdit(f){
         var canvas=document.createElement('canvas');
         var ctx=canvas.getContext('2d');
         var w=img.width,h=img.height;
-        if(orient>=5&&orient<=8){canvas.width=h;canvas.height=w;}
-        else{canvas.width=w;canvas.height=h;}
+        var MAX=1280;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+        var sw=w,sh=h;
+        if(orient>=5&&orient<=8){canvas.width=sh;canvas.height=sw;}
+        else{canvas.width=sw;canvas.height=sh;}
         ctx.save();
         switch(orient){
-          case 2:ctx.transform(-1,0,0,1,w,0);break;
-          case 3:ctx.transform(-1,0,0,-1,w,h);break;
-          case 4:ctx.transform(1,0,0,-1,0,h);break;
+          case 2:ctx.transform(-1,0,0,1,sw,0);break;
+          case 3:ctx.transform(-1,0,0,-1,sw,sh);break;
+          case 4:ctx.transform(1,0,0,-1,0,sh);break;
           case 5:ctx.transform(0,1,1,0,0,0);break;
-          case 6:ctx.transform(0,1,-1,0,h,0);break;
-          case 7:ctx.transform(0,-1,-1,0,h,w);break;
-          case 8:ctx.transform(0,-1,1,0,0,w);break;
+          case 6:ctx.transform(0,1,-1,0,sh,0);break;
+          case 7:ctx.transform(0,-1,-1,0,sh,sw);break;
+          case 8:ctx.transform(0,-1,1,0,0,sw);break;
         }
-        ctx.drawImage(img,0,0);
+        ctx.drawImage(img,0,0,sw,sh);
         ctx.restore();
-        var dataUrl=canvas.toDataURL('image/jpeg',0.85);
+        var dataUrl=canvas.toDataURL('image/jpeg',0.75);
         EDIT_PHOTOS.push({dataUrl:dataUrl,type:f.type||'image/jpeg'});
         renderEditPhotos();
       });
