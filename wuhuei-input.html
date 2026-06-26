@@ -883,24 +883,29 @@ function doSync(batch){
 
 function uploadPhotos(batchId, photos){
   if(!photos||photos.length===0)return;
-  toast('📷 照片上傳中...','info');
-  // 逐張上傳，避免一次傳太多造成逾時
-  var photoData=photos.map(function(p){
+  toast('📷 照片上傳中(1/'+photos.length+')...','info');
+  // 逐張依序上傳，GET方式每次傳1張
+  function uploadOne(idx){
+    if(idx>=photos.length){
+      toast('📷 共'+photos.length+'張照片已存入 Google Drive！','ok');
+      return;
+    }
+    var p=photos[idx];
     var base64=p.dataUrl?p.dataUrl.split(',')[1]:'';
-    return{data:base64,type:p.type||'image/jpeg'};
-  });
-  var payload=JSON.stringify({action:'uploadPhotos',batchId:batchId,photos:photoData});
-  fetch(API,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:payload
-  })
-  .then(function(r){return r.json();})
-  .then(function(res){
-    if(res.status==='ok')toast('📷 照片已存入 Google Drive！','ok');
-    else toast('⚠️ 照片上傳失敗：'+(res.message||''),'info');
-  })
-  .catch(function(err){toast('⚠️ 照片上傳失敗，資料已儲存','info');console.error(err);});
+    var payload={batchId:batchId,photoIndex:idx,total:photos.length,
+                 data:base64,type:p.type||'image/jpeg'};
+    fetch(API+'?action=uploadPhoto&data='+encodeURIComponent(JSON.stringify(payload)),{method:'GET'})
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(idx+1<photos.length)toast('📷 照片上傳中('+(idx+2)+'/'+photos.length+')...','info');
+      uploadOne(idx+1);
+    })
+    .catch(function(err){
+      toast('⚠️ 第'+(idx+1)+'張上傳失敗，繼續下一張','info');
+      uploadOne(idx+1);
+    });
+  }
+  uploadOne(0);
 }
 
 function toggleLock(i){
