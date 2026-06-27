@@ -39,7 +39,7 @@ body{font-family:'Noto Sans TC','Inter',sans-serif;background:var(--bg);color:va
 .tnav{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;color:rgba(255,255,255,.6);background:transparent;font-family:inherit;transition:all .15s;white-space:nowrap}
 .tnav:hover{color:#fff;background:rgba(255,255,255,.1)}
 .tnav.on{background:rgba(255,255,255,.15);color:#fff}
-@media(max-width:600px){.tnav{padding:6px 8px;font-size:11px}.topbar{padding:0 12px}.brand-name{font-size:17px}}
+@media(max-width:600px){.topbar{padding:6px 12px;height:auto;flex-direction:column;align-items:flex-start;gap:4px}.brand-name{font-size:16px;white-space:nowrap}.brand-sub{display:none}.tnav-wrap{width:100%;display:flex;gap:2px;overflow-x:auto}.tnav{padding:5px 8px;font-size:11px;white-space:nowrap;flex-shrink:0}.conn-pill{position:absolute;top:8px;right:10px;font-size:10px;padding:3px 8px}}
 .conn-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.1);padding:4px 11px;border-radius:20px;font-family:'JetBrains Mono',monospace}
 .cdot{width:6px;height:6px;border-radius:50%;background:#64748b;flex-shrink:0}
 .cdot.ok{background:#34d399;animation:cdot-p 2s infinite}
@@ -123,14 +123,14 @@ body{font-family:'Noto Sans TC','Inter',sans-serif;background:var(--bg);color:va
 .seg-lbl{font-size:11px;font-weight:600;color:var(--ink4);margin-bottom:3px}
 
 /* ══ LIVE PANEL ══════════════════════════ */
-.live-box{background:linear-gradient(145deg,#0f172a,#1e3a5f);border-radius:var(--r2);padding:15px 17px;color:#fff;border:1px solid #1e3a8a}
-.live-ttl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:11px;font-family:'JetBrains Mono',monospace}
+.live-box{background:#f0f7f4;border-radius:var(--r2);padding:15px 17px;color:#1b4332;border:1.5px solid #b7dcc8}
+.live-ttl{font-size:10px;color:#52b788;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:11px;font-family:'JetBrains Mono',monospace}
 .live-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.live-row:last-child{margin:0;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
-.live-lbl{font-size:13px;color:rgba(255,255,255,.5)}
+.live-row:last-child{margin:0;padding-top:8px;border-top:1px solid rgba(45,106,79,.12)}
+.live-lbl{font-size:13px;color:#2d6a4f}
 .live-val{font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.live-val.good{color:#34d399}.live-val.warn{color:#fbbf24}.live-val.bad{color:#f87171}.live-val.dim{font-size:18px;color:rgba(255,255,255,.65)}
-.live-sub{font-size:11px;color:rgba(255,255,255,.3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.live-val.good{color:#34d399}.live-val.warn{color:#fbbf24}.live-val.bad{color:#f87171}.live-val.dim{font-size:18px;color:#52b788}
+.live-sub{font-size:11px;color:#74c69d;font-family:'JetBrains Mono',monospace;margin-top:2px}
 
 /* ══ PHOTO ═══════════════════════════════ */
 .photo-zone{border:2px dashed var(--line2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .18s;background:var(--bg2)}
@@ -280,10 +280,18 @@ tr:hover td{background:var(--bg2)}
       <div class="ch"><div class="ct">🌿 步驟 1 — 選擇水果品種與作業類型</div></div>
       <div class="cb">
         <div class="fgrid" style="margin-bottom:16px">
-          <div class="fg"><label class="flbl">作業日期 <span class="req">*</span></label><input type="date" class="fi" id="i-date"></div>
+          <div class="fg"><label class="flbl">作業日期 <span class="req">*</span></label><input type="date" class="fi" id="i-date" style="max-width:240px"></div>
           <div class="fg"><label class="flbl">作業地點</label>
             <select class="fs" id="i-loc"><option value="">-- 選擇地點 --</option><option value="2廠3F原料">2廠3F原料</option><option value="1廠1F">1廠1F</option><option value="其他">其他</option></select></div>
-          <div class="fg"><label class="flbl">輸入人員 <span class="req">*</span></label><input class="fi" id="i-operator" placeholder="請填寫姓名（必填）" required></div>
+          <div class="fg"><label class="flbl">輸入人員 <span class="req">*</span></label>
+            <select class="fi" id="i-operator" onchange="onOperatorChange(this.value)">
+              <option value="">-- 選擇人員 --</option>
+              <option value="Jackie">Jackie</option>
+              <option value="陳登威">陳登威</option>
+              <option value="__other__">其他...</option>
+            </select>
+            <input class="fi" id="i-operator-custom" placeholder="請輸入姓名" style="display:none;margin-top:6px">
+          </div>
           <div class="fg"><label class="flbl">執行人員類型</label>
             <select class="fs" id="i-optype"><option value="廠內人員">廠內人員（含外勞）</option><option value="開放民眾">開放民眾</option></select></div>
         </div>
@@ -572,41 +580,35 @@ var BUILTIN=[
 
 // ── FRUIT CONFIG ──────────────────────────
 var FC={
-  '柚子':{
-    ico:'<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#C8D840"/><circle cx="20" cy="20" r="16" fill="#F5F0DC"/><circle cx="20" cy="20" r="12" fill="#F0D060"/><circle cx="20" cy="20" r="4" fill="#E8B820"/><line x1="20" y1="8" x2="20" y2="32" stroke="#D4A010" stroke-width="0.8" opacity=".6"/><line x1="8" y1="20" x2="32" y2="20" stroke="#D4A010" stroke-width="0.8" opacity=".6"/><line x1="11" y1="11" x2="29" y2="29" stroke="#D4A010" stroke-width="0.8" opacity=".5"/><line x1="29" y1="11" x2="11" y2="29" stroke="#D4A010" stroke-width="0.8" opacity=".5"/></svg>',
+  '芒果':{ico:'<span style="font-size:36px">🥭</span>',sub:'Mango',isPm:false,
+    ops:[{id:'芒果-切削',name:'芒果切削',tag:'削皮去果核',pt:'清洗'}],
+    outs:{'芒果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'果核、果皮、爛果（流失量也計入）'},
+  '蘋果':{ico:'<span style="font-size:36px">🍎</span>',sub:'Apple',isPm:false,
+    ops:[{id:'蘋果-切削',name:'蘋果切削',tag:'切四等份去核',pt:'清洗'}],
+    outs:{'蘋果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'爛果、果皮、蒂頭、核芯'},
+  '奇異果':{ico:'<span style="font-size:36px">🥝</span>',sub:'Kiwi',isPm:false,
+    ops:[{id:'奇異果-切削',name:'奇異果切削',tag:'去頭尾削皮',pt:''}],
+    outs:{'奇異果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'果皮、爛果、頭尾切除'},
+  '蘿蔔':{ico:'<svg width="40" height="40" viewBox="0 0 40 40"><path d="M16 15 Q11 7 13 4 Q15 8 17 13" fill="#5BA832"/><path d="M20 13 Q20 5 23 4 Q22 8 21 13" fill="#4A9828"/><path d="M24 15 Q29 7 31 9 Q28 12 22 15" fill="#5BA832"/><ellipse cx="20" cy="26" rx="10" ry="11" fill="#F5F5F5" stroke="#D0D0D0" stroke-width="1"/><ellipse cx="22" cy="23" rx="4" ry="5" fill="#fff" opacity=".5"/><path d="M20 37 Q19 40 18 42" stroke="#9DBF80" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
+    sub:'Radish',isPm:false,
+    ops:[{id:'蘿蔔-切削',name:'蘿蔔切削',tag:'切削→清洗→切塊→切角→秤重',pt:''}],
+    outs:{'蘿蔔-切削':[{id:'flesh',lbl:'蘿蔔肉 (KG)'}]},defHint:'果皮、爛果、頭尾切除'},
+  '柚子':{ico:'<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#C8D840"/><circle cx="20" cy="20" r="16" fill="#F5F0DC"/><circle cx="20" cy="20" r="12" fill="#F0D060"/><circle cx="20" cy="20" r="4" fill="#E8B820"/><line x1="20" y1="8" x2="20" y2="32" stroke="#D4A010" stroke-width="0.8" opacity=".6"/><line x1="8" y1="20" x2="32" y2="20" stroke="#D4A010" stroke-width="0.8" opacity=".6"/><line x1="11" y1="11" x2="29" y2="29" stroke="#D4A010" stroke-width="0.8" opacity=".5"/><line x1="29" y1="11" x2="11" y2="29" stroke="#D4A010" stroke-width="0.8" opacity=".5"/></svg>',
     sub:'Pomelo',isPm:true,
     ops:[{id:'剝柚子',name:'剝柚子（取皮肉）',tag:'粗磨前置',pt:'粗磨'},{id:'切柚皮條',name:'切柚皮條',tag:'後段加工',pt:''},{id:'切柚皮絲',name:'切柚皮絲',tag:'後段加工',pt:''},{id:'剝柚肉',name:'剝柚肉',tag:'取果肉',pt:''}],
     outs:{'剝柚子':[{id:'pomelo_skin',lbl:'柚皮 (KG)',pm:true,hint:'目標29%'},{id:'pomelo_neck',lbl:'柚脖含柚皮頭 (KG)',pm:true,hint:'柚脖+柚皮頭合計'},{id:'pomelo_flesh',lbl:'柚肉 (KG)',pm:true,hint:'目標67%'}],'切柚皮條':[{id:'strip',lbl:'柚皮條 (KG)'}],'切柚皮絲':[{id:'shred',lbl:'柚皮絲 (KG)'}],'剝柚肉':[{id:'meat',lbl:'去籽柚肉 (KG)'}]},
     defHint:'蒂頭、不良果、爛果。剝柚肉時柚囊計入不良品'
   },
-  '蘋果':{ico:'<span style="font-size:36px">🍎</span>',sub:'Apple',isPm:false,
-    ops:[{id:'蘋果-切削',name:'蘋果切削',tag:'切四等份去核',pt:'清洗'}],
-    outs:{'蘋果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'爛果、果皮、蒂頭、核芯'},
-  '芒果':{ico:'<span style="font-size:36px">🥭</span>',sub:'Mango',isPm:false,
-    ops:[{id:'芒果-切削',name:'芒果切削',tag:'削皮去果核',pt:'清洗'}],
-    outs:{'芒果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'果核、果皮、爛果（流失量也計入）'},
-  '奇異果':{ico:'<span style="font-size:36px">🥝</span>',sub:'Kiwi',isPm:false,
-    ops:[{id:'奇異果-切削',name:'奇異果切削',tag:'去頭尾削皮',pt:''}],
-    outs:{'奇異果-切削':[{id:'flesh',lbl:'果肉 (KG)'}]},defHint:'果皮、爛果、頭尾切除'},
   '橘子':{ico:'<span style="font-size:36px">🍊</span>',sub:'Tangerine',isPm:false,
     ops:[{id:'剝橘子（玻璃瓶）',name:'剝橘子（玻璃瓶）',tag:'殺菁前置',pt:'殺菁'},{id:'橘子榨汁（NY袋）',name:'橘子榨汁（NY袋）',tag:'製汁',pt:'榨汁裝桶/殺菁漂水'}],
     outs:{'剝橘子（玻璃瓶）':[{id:'flesh',lbl:'果肉含籽 (KG)'},{id:'skin',lbl:'橘子皮 (KG)'}],'橘子榨汁（NY袋）':[{id:'juice',lbl:'橘子果汁 (KG)'},{id:'skin2',lbl:'橘子皮 (KG)'}]},
-    defHint:'籽、爛果、蒂頭'},
-  '蘿蔔':{
-    ico:'<svg width="40" height="40" viewBox="0 0 40 40"><path d="M16 15 Q11 7 13 4 Q15 8 17 13" fill="#5BA832"/><path d="M20 13 Q20 5 23 4 Q22 8 21 13" fill="#4A9828"/><path d="M24 15 Q29 7 31 9 Q28 12 22 15" fill="#5BA832"/><ellipse cx="20" cy="26" rx="10" ry="11" fill="#F5F5F5" stroke="#D0D0D0" stroke-width="1"/><ellipse cx="22" cy="23" rx="4" ry="5" fill="#fff" opacity=".5"/><path d="M20 37 Q19 40 18 42" stroke="#9DBF80" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
-    sub:'Radish',isPm:false,
-    ops:[{id:'蘿蔔-切削',name:'蘿蔔切削',tag:'切削→清洗→切塊→切角→秤重',pt:''}],
-    outs:{'蘿蔔-切削':[{id:'flesh',lbl:'蘿蔔肉 (KG)'}]},defHint:'果皮、爛果、頭尾切除'},
-  '其它':{ico:'<span style="font-size:36px">🌱</span>',sub:'Other',isPm:false,
-    ops:[{id:'自訂作業',name:'自訂作業',tag:'',pt:''}],
-    outs:{'自訂作業':[{id:'out1',lbl:'產出品項1 (KG)'},{id:'out2',lbl:'產出品項2 (KG)'}]},
-    defHint:'不良品、廢棄物'}
+    defHint:'籽、爛果、蒂頭'}
 };
 
 // 水果標籤顏色
 var FRUIT_TAG={
-  '柚子':'tag-柚子','蘋果':'tag-蘋果','芒果':'tag-芒果',
-  '奇異果':'tag-奇異果','橘子':'tag-橘子','蘿蔔':'tag-蘿蔔','其它':'tag-其它'
+  '芒果':'tag-芒果','蘋果':'tag-蘋果','奇異果':'tag-奇異果',
+  '蘿蔔':'tag-蘿蔔','柚子':'tag-柚子','橘子':'tag-橘子'
 };
 
 var ALL=[],FILT=[],CUR=null,ST={fruit:null,op:null,photos:[],segN:0};
@@ -642,16 +644,66 @@ function showView(v){
   if(v==='records')loadRecords();
 }
 
+var _lastBuildFruit=null,_lastBuildOp=null;
 function goStep(n){
   if(n===2&&(!ST.fruit||!ST.op)){toast('請先選擇品種與作業類型','err');return;}
   if(n===5&&!document.getElementById('i-raw').value){toast('請填寫原料投入量','err');return;}
   for(var i=1;i<=5;i++){var el=document.getElementById('s'+i);if(el)el.className=i===n?'':'hidden';}
   for(var j=1;j<=5;j++){var si=document.getElementById('si'+j);if(!si)continue;si.className='si'+(j<n?' done':j===n?' active':'');}
-  if(n===5)buildOut();
+  // ★ 只在品種/作業類型改變時才重建產出欄位，防止回上一步時清空已填資料
+  if(n===5){
+    if(ST.fruit!==_lastBuildFruit||ST.op!==_lastBuildOp){
+      buildOut();
+      _lastBuildFruit=ST.fruit;
+      _lastBuildOp=ST.op;
+    }
+  }
   window.scrollTo(0,0);
 }
 
 // ── FRUITS ────────────────────────────────
+function onOperatorChange(val){
+  var cust=document.getElementById('i-operator-custom');
+  if(!cust)return;
+  cust.style.display=(val==='__other__')?'':'none';
+  if(val!=='__other__')cust.value='';
+}
+
+function getOperatorValue(){
+  var sel=document.getElementById('i-operator');
+  if(!sel)return'';
+  if(sel.value==='__other__'){
+    return(document.getElementById('i-operator-custom')||{}).value||'';
+  }
+  return sel.value||'';
+}
+
+function populateOperators(){
+  var defaultNames=['Jackie','陳登威'];
+  var extraNames=[];
+  ALL.forEach(function(r){
+    var src=String(r['資料來源']||'');
+    // 格式：「姓名 YYYY-MM-DD」，取第一段（空格前）
+    var parts=src.split(' ');
+    var name=parts[0]||'';
+    // 確保是合理姓名（非空、非數字開頭、長度合理）
+    if(name&&name.length>=2&&name.length<=10&&!/^\d/.test(name)){
+      if(!defaultNames.includes(name)&&!extraNames.includes(name)){
+        extraNames.push(name);
+      }
+    }
+  });
+  var sel=document.getElementById('i-operator');
+  if(!sel||sel.tagName!=='SELECT')return;
+  var cur=sel.value;
+  sel.innerHTML='<option value="">-- 選擇人員 --</option>';
+  defaultNames.concat(extraNames).forEach(function(n){
+    sel.innerHTML+='<option value="'+n+'">'+n+'</option>';
+  });
+  sel.innerHTML+='<option value="__other__">其他...</option>';
+  if(cur)sel.value=cur;
+}
+
 function renderFruits(){
   var html='';
   Object.entries(FC).forEach(function(e){
@@ -818,7 +870,7 @@ function submitBatch(){
   document.getElementById('val-panel').innerHTML='';
   var date=document.getElementById('i-date').value,raw=parseFloat(document.getElementById('i-raw').value);
   var errs=[];
-  var operator=document.getElementById('i-operator').value.trim();
+  var operator=getOperatorValue().trim();
   if(!operator)errs.push('請填寫輸入人員姓名');
   if(!date)errs.push('請填寫作業日期');
   if(!raw||raw<=0)errs.push('請填寫有效的原料投入量');
@@ -861,8 +913,28 @@ function doSync(batch){
   _syncing=true;
   setSS('saving','同步中...');
   var btn=document.getElementById('btn-sub');btn.disabled=true;btn.textContent='⏳ 同步中...';
-  var encoded=encodeURIComponent(JSON.stringify(batch));
-  fetch(API+'?action=write&data='+encoded,{method:'GET'})
+  // 把前端batch物件欄位名稱對應到v18 Apps Script期望的格式
+  var outKeys=Object.keys(batch.outputs||{});
+  var main=0,sub1=0,sub2=0;
+  if(batch.fruit==='柚子'&&String(batch.op).indexOf('剝柚子')>=0){
+    main=Number((batch.outputs||{}).pomelo_flesh)||0;
+    sub1=Number((batch.outputs||{}).pomelo_skin)||0;
+    sub2=Number((batch.outputs||{}).pomelo_neck)||0;
+  }else{
+    main=Number((batch.outputs||{})[outKeys[0]])||0;
+    sub1=Number((batch.outputs||{})[outKeys[1]])||0;
+    sub2=Number((batch.outputs||{})[outKeys[2]])||0;
+  }
+  var apiData={
+    date:batch.date, species:batch.fruit, opType:batch.op,
+    operator:batch.operator, location:batch.loc, supplier:batch.supplier,
+    raw:batch.rawkg, main:main, sub1:sub1, sub2:sub2, defect:batch.defect,
+    workers:batch.workers, hours:batch.grandMH, stations:batch.stations,
+    size:[(batch.len?batch.len+'mm':''), (batch.dia?'Ø'+batch.dia+'mm':'')].filter(Boolean).join(' '),
+    condition:batch.condition, hardness:batch.texture, notes:batch.notes
+  };
+  fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'append',data:apiData})})
   .then(function(r){return r.json();})
   .then(function(res){
     if(res.status==='ok'){
@@ -972,7 +1044,7 @@ function toggleLock(i){
   var newLock=curLocked?'N':'Y';
   var msg=newLock==='Y'?'確定要鎖定此筆資料？鎖定後無法編輯或刪除。':'確定要解除鎖定？';
   if(!confirm(msg))return;
-  fetch(API+'?action=lock&data='+encodeURIComponent(JSON.stringify({batchId:batchId,locked:newLock})),{method:'GET'})
+  fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'setLock',batchId:batchId,locked:newLock==='Y'})})
   .then(function(r){return r.json();})
   .then(function(res){
     if(res.status==='ok'){
@@ -1007,7 +1079,9 @@ function resetAll(keep){
   document.querySelectorAll('.fcard').forEach(function(e){e.classList.remove('sel')});
   document.getElementById('op-sec').classList.add('hidden');
   document.getElementById('btn-s1').disabled=true;
-  ['i-loc','i-sup','i-raw','i-len','i-dia','i-note','i-ptw','i-pth','i-ptm','i-def','i-sta','i-operator'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  ['i-loc','i-sup','i-raw','i-len','i-dia','i-note','i-ptw','i-pth','i-ptm','i-def','i-sta','i-operator','i-operator-custom'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var custEl=document.getElementById('i-operator-custom');if(custEl)custEl.style.display='none';
+  _lastBuildFruit=null;_lastBuildOp=null;
   document.getElementById('i-cond').value='良好';document.getElementById('i-tex').value='';document.getElementById('i-pt').value='';
   document.getElementById('photo-prev').innerHTML='';document.getElementById('segs').innerHTML='';
   document.getElementById('i-date').value=new Date().toISOString().slice(0,10);
@@ -1021,16 +1095,16 @@ function loadRecords(){
   document.getElementById('rec-loading').classList.remove('hidden');
   document.getElementById('rec-empty').classList.add('hidden');
   document.getElementById('rec-tbody').innerHTML='';
-  fetch(API+'?action=list&limit=500')
+  fetch(API+'?action=getBatches',{method:'GET'})
   .then(function(r){return r.json();})
   .then(function(data){
     document.getElementById('rec-loading').classList.add('hidden');
-    var sheets=data.batches||[];
+    var sheets=Array.isArray(data)?data:(data.batches||[]);
     var sheetIds=sheets.map(function(r){return r['批次ID']||'';});
     var builtin=BUILTIN.filter(function(b){return sheetIds.indexOf(b.batchId)<0;}).map(cvtBuiltin);
     ALL=builtin.concat(sheets);
     ALL.sort(function(a,b){return String(a['作業日期']).localeCompare(String(b['作業日期']));});
-    filterRecs();renderRecStats();
+    filterRecs();renderRecStats();populateOperators();
   })
   .catch(function(){
     document.getElementById('rec-loading').classList.add('hidden');
@@ -1259,7 +1333,17 @@ function saveEdit(){
     workers:parseInt(document.getElementById('ed-wk').value)||0,grandMH:mh,efficiency:mh>0?(raw/mh):0,
     condition:document.getElementById('ed-cond').value,texture:document.getElementById('ed-tex').value,
     notes:document.getElementById('ed-note').value};
-  fetch(API+'?action=update&data='+encodeURIComponent(JSON.stringify(d)))
+  // 取得目前選擇的操作人員（編輯時更新資料來源）
+  var editOperator=getOperatorValue().trim()||'';
+  var apiUpdateData={
+    batchId:d.batchId, date:d.date, location:d.loc, supplier:d.supplier,
+    raw:d.rawkg, main:d.totalOut, sub1:0, sub2:0, defect:d.defect,
+    workers:d.workers, hours:d.grandMH,
+    condition:d.condition, hardness:d.texture, notes:d.notes,
+    operator:editOperator
+  };
+  fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'update',data:apiUpdateData})})
   .then(function(r){return r.json();})
   .then(function(res){
     if(res.status==='ok'){
@@ -1287,7 +1371,8 @@ function showDelM(){
 }
 function doDelete(){
   var btn=document.getElementById('btn-del');btn.disabled=true;btn.textContent='⏳ 刪除中...';
-  fetch(API+'?action=delete&data='+encodeURIComponent(JSON.stringify({batchId:CUR['批次ID']})))
+  fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'delete',batchId:CUR['批次ID']})})
   .then(function(r){return r.json();})
   .then(function(res){if(res.status==='ok'){toast('✅ 已刪除','ok');closeM('del');loadRecords();}else throw new Error(res.message);})
   .catch(function(err){toast('❌ 刪除失敗：'+err.message,'err');})
