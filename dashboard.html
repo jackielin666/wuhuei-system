@@ -6,11 +6,11 @@
 <title>五惠 原料處理記錄及分析系統</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
 <style>
 :root{
   --primary:#2d6a4f;--primary-m:#40916c;--primary-l:#d8f3dc;--primary-b:#95d5b2;
-  --accent:#f4a261;--accent-d:#e76f51;--accent-l:#fef3e2;--gold:#e9c46a;
-  --sky:#219ebc;--sky-l:#e0f4f8;
+  --accent:#f4a261;--accent-d:#e76f51;--accent-l:#fef3e2;
   --green-m:#15803d;--green-l:#f0fdf4;--green-b:#86efac;
   --red-m:#dc2626;--red-l:#fee2e2;--red-b:#fca5a5;
   --amber-m:#d97706;--amber-l:#fef3c7;--amber-b:#fcd34d;
@@ -19,7 +19,7 @@
   --shadow:0 1px 4px rgba(45,106,79,.08);
   --shadow-md:0 4px 16px rgba(45,106,79,.12);
   --shadow-lg:0 8px 32px rgba(45,106,79,.15);
-  --r:8px;--r2:12px;--r3:16px;
+  --r:8px;--r2:12px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;overflow-x:hidden}
@@ -27,33 +27,35 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
 
-/* ── TOPBAR ── */
-.topbar{background:var(--primary);height:90px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 3px 16px rgba(45,106,79,.4)}
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,#1b4332 0%,#2d6a4f 50%,#40916c 100%);height:90px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 3px 16px rgba(45,106,79,.4)}
 .brand-name{font-size:22px;font-weight:700;color:#fff;letter-spacing:.3px;white-space:nowrap}
-.brand-sub{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-top:2px;white-space:nowrap}
-.topnav{display:flex;gap:4px;flex-shrink:0}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;margin-top:2px}
+.topnav{display:flex;gap:4px}
 .tnav{padding:8px 17px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;color:rgba(255,255,255,.65);background:transparent;font-family:inherit;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap}
 .tnav:hover{color:#fff;background:rgba(255,255,255,.12)}
 .tnav.on{background:rgba(255,255,255,.2);color:#fff}
+.live-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,.75);font-family:'JetBrains Mono',monospace}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#74c69d;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @media(max-width:600px){
   .topbar{padding:6px 12px;height:auto;flex-direction:column;align-items:flex-start;gap:4px}
-  .brand-name{font-size:16px;white-space:nowrap}
-  .brand-sub{display:none}
-  .topnav{width:100%;display:flex;gap:2px;overflow-x:auto}
-  .tnav{padding:5px 8px;font-size:11px;white-space:nowrap;flex-shrink:0}
+  .brand-name{font-size:16px}.brand-sub{display:none}
+  .topnav{width:100%;gap:2px;overflow-x:auto}
+  .tnav{padding:5px 8px;font-size:11px;flex-shrink:0}
   .live-pill{position:absolute;top:8px;right:10px;font-size:10px;padding:3px 8px}
 }
-.live-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border-radius:20px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,.75);font-family:'JetBrains Mono',monospace}
-.live-dot{width:8px;height:8px;border-radius:50%;background:#74c69d;animation:pulse 2s infinite;flex-shrink:0}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* ── MAIN ── */
+/* MAIN */
 .main{max-width:1400px;margin:0 auto;padding:22px 20px 80px}
 
-/* ── SELECTOR BAR ── */
+/* SELECTOR */
 .selector-bar{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:16px 20px;margin-bottom:20px;box-shadow:var(--shadow)}
 .sel-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .sel-label{font-size:11px;font-weight:700;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+/* 品種按鈕 3欄Grid */
+.fruit-btns{display:grid;grid-template-columns:repeat(3,auto);gap:6px}
+.op-btns{display:flex;gap:6px;flex-wrap:wrap}
 .fbtn{padding:8px 18px;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;border:2px solid var(--line2);background:var(--card);color:var(--ink3);transition:all .15s;font-family:inherit}
 .fbtn:hover{border-color:var(--primary-m);color:var(--primary)}
 .fbtn.on{color:#fff;border-color:transparent;box-shadow:var(--shadow-md)}
@@ -61,52 +63,49 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 .obtn:hover{border-color:var(--primary-m);color:var(--primary)}
 .obtn.on{background:var(--primary-l);color:var(--primary);border-color:var(--primary-b);font-weight:600}
 .div-v{width:1px;height:32px;background:var(--line);flex-shrink:0}
-.fruit-btns,.op-btns{display:flex;gap:6px;flex-wrap:wrap}
 
-/* ── STAT CARDS（3欄固定）── */
+/* STAT CARDS 3欄 */
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-@media(max-width:600px){.stat-row{grid-template-columns:repeat(3,1fr);gap:8px}}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:all .2s}
+.stat{background:linear-gradient(145deg,#ffffff 0%,#f5faf6 100%);border:1px solid var(--line);border-radius:var(--r2);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:all .2s}
 .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--sc,var(--primary));border-radius:var(--r2) var(--r2) 0 0}
 .stat:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
 .stat-lbl{font-size:10px;color:var(--ink3);letter-spacing:.8px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:6px}
 .stat-val{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1;color:var(--sv,var(--primary))}
-@media(max-width:600px){.stat-lbl{font-size:9px}.stat-val{font-size:20px}}
 .stat-unit{font-size:11px;color:var(--ink3);margin-top:4px}
+@media(max-width:600px){.stat-lbl{font-size:9px}.stat-val{font-size:18px}.stat{padding:10px 12px}}
 
-/* ── COMPARE CARDS ── */
-.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-@media(max-width:600px){.cmp-grid{grid-template-columns:1fr}}
-.cmp{border-radius:var(--r2);padding:18px;border:2px solid;box-shadow:var(--shadow)}
-.cmp-best{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:var(--green-b)}
-.cmp-worst{background:linear-gradient(135deg,#fff5f5,#fee2e2);border-color:var(--red-b)}
-.cmp-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px}
-.cmp-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.06)}
-.cmp-row:last-child{border:none}
-.cmp-key{color:var(--ink3)}
-.cmp-val{font-family:'JetBrains Mono',monospace;font-weight:600}
+/* 三欄比較表 */
+.cmp-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
+.cmp-tbl{display:grid;grid-template-columns:130px 1fr 1fr}
+.cmp-th{padding:12px 16px;font-size:12px;font-weight:700;letter-spacing:.5px}
+.cmp-th-key{background:var(--bg2);color:var(--ink3)}
+.cmp-th-best{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:var(--green-m);text-align:center}
+.cmp-th-worst{background:linear-gradient(135deg,#fff5f5,#fee2e2);color:var(--red-m);text-align:center}
+.cmp-cell{padding:10px 16px;border-top:1px solid var(--line);font-size:13px;display:flex;align-items:center}
+.cmp-cell-key{background:var(--bg2);color:var(--ink3);font-size:12px;font-weight:500}
+.cmp-cell-best{background:#fafffe;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600}
+.cmp-cell-worst{background:#fffafa;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600}
+@media(max-width:600px){.cmp-tbl{grid-template-columns:90px 1fr 1fr}.cmp-th,.cmp-cell{padding:8px 10px;font-size:11px}}
 
-/* ── BREAKDOWN SECTION ── */
-.breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
+/* BREAKDOWN */
+.breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
 .bk{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .bk::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bc,var(--primary))}
 .bk-lbl{font-size:11px;color:var(--ink3);margin-bottom:6px;font-weight:500}
-.bk-val{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--bc,var(--primary));line-height:1}
+.bk-val{font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--bc,var(--primary));line-height:1}
 .bk-unit{font-size:11px;color:var(--ink4);margin-top:3px}
 .bk-pct{font-size:13px;font-weight:600;color:var(--ink2);margin-top:2px}
 
-/* ── CHART CARDS ── */
-.cc{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;box-shadow:var(--shadow);transition:border-color .2s;margin-bottom:14px}
+/* CHART CARDS */
+.cc{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px}
 .cc:hover{border-color:var(--line2)}
 .cc-hdr{padding:13px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
 .cc-title{font-size:13px;font-weight:600;color:var(--primary);display:flex;align-items:center;gap:7px}
 .cc-sub{font-size:11px;color:var(--ink4)}
 .cc-body{padding:16px}
-.ch260{height:260px;position:relative}
 .ch300{height:300px;position:relative}
-.ch340{height:340px;position:relative}
 
-/* ── BATCH TABLE ── */
+/* BATCH TABLE */
 .btbl{width:100%;border-collapse:collapse;font-size:13px}
 .btbl th{padding:10px 12px;text-align:left;font-weight:600;color:var(--ink3);font-size:11px;border-bottom:2px solid var(--line);background:var(--bg2);letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
 .btbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
@@ -114,35 +113,25 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 .btbl tr:hover td{background:var(--bg2)}
 .btbl tr.best td{background:#f0fdf4}
 .btbl tr.worst td{background:#fff5f5}
-/* 手機版隱藏備註欄 */
 @media(max-width:600px){.hide-mobile{display:none!important}}
 
-/* ── BADGES ── */
+/* BADGES */
 .badge{display:inline-flex;padding:3px 9px;border-radius:5px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
 .bg{background:var(--green-l);color:var(--green-m);border:1px solid var(--green-b)}
 .br{background:var(--red-l);color:var(--red-m);border:1px solid var(--red-b)}
 .by{background:var(--amber-l);color:var(--amber-m);border:1px solid var(--amber-b)}
 .bp{background:var(--primary-l);color:var(--primary);border:1px solid var(--primary-b)}
-.tag{display:inline-flex;padding:3px 9px;border-radius:5px;font-size:12px;font-weight:500;border:1px solid}
-.t-柚子{background:#fefce8;color:#854d0e;border-color:#fde047}
-.t-蘋果{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
-.t-芒果{background:#fff7ed;color:#9a3412;border-color:#fdba74}
-.t-奇異果{background:#f0fdf4;color:#14532d;border-color:#86efac}
-.t-橘子{background:#fff7ed;color:#7c2d12;border-color:#fb923c}
-.t-蘿蔔{background:#f8fafc;color:#475569;border-color:#cbd5e1}
 
-/* ── SECTION ── */
+/* SECTION */
 .sec{display:flex;align-items:center;gap:10px;margin:20px 0 12px}
 .sec::before,.sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--primary-b),transparent)}
 .sec-lbl{font-size:11px;font-weight:700;color:var(--primary-m);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;white-space:nowrap}
-
 .hidden{display:none!important}
 .empty{text-align:center;padding:60px;color:var(--ink4)}
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <div>
     <div class="brand-name">五惠 原料處理記錄及分析系統</div>
@@ -168,58 +157,59 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
     </div>
   </div>
 
-  <!-- STATS（3欄）-->
+  <!-- STATS 3欄 -->
   <div class="stat-row" id="stat-row"></div>
 
-  <!-- BREAKDOWN（多產出品種）-->
+  <!-- BREAKDOWN -->
   <div id="breakdown-section" class="hidden">
     <div class="sec"><div class="sec-lbl" id="breakdown-title">產出結構分析</div></div>
-    <div class="breakdown-grid" id="breakdown-grid"></div>
     <div class="cc">
       <div class="cc-hdr"><div class="cc-title" id="breakdown-chart-title">各批次產出結構</div><span class="cc-sub">各部位佔原料總重%</span></div>
       <div class="cc-body"><div class="ch300"><canvas id="chart-breakdown"></canvas></div></div>
     </div>
   </div>
 
-  <!-- 三段比例圖 -->
-  <div class="sec"><div class="sec-lbl">原料去向分析（步留率 + 耗損率 + 不良品率 = 100%）</div></div>
-  <div class="cc">
-    <div class="cc-hdr">
-      <div class="cc-title">📊 各批次原料去向堆疊圖</div>
-      <span class="cc-sub">綠=步留　灰=作業耗損　紅=不良品</span>
+  <!-- 三段堆疊圖（單一產出品種才顯示）-->
+  <div id="stacked-section">
+    <div class="sec"><div class="sec-lbl">原料去向分析（步留 + 耗損 + 不良 = 100%）</div></div>
+    <div class="cc">
+      <div class="cc-hdr">
+        <div class="cc-title">📊 各批次原料去向堆疊圖</div>
+        <span class="cc-sub">綠=步留　灰=作業耗損　紅=不良品</span>
+      </div>
+      <div class="cc-body"><div class="ch300"><canvas id="chart-stacked"></canvas></div></div>
     </div>
-    <div class="cc-body"><div class="ch300"><canvas id="chart-stacked"></canvas></div></div>
   </div>
 
-  <!-- BEST/WORST -->
+  <!-- 最佳/最差批三欄比較 -->
   <div class="sec"><div class="sec-lbl">最佳批 vs 最差批</div></div>
-  <div class="cmp-grid" id="cmp-grid"></div>
+  <div class="cmp-wrap" id="cmp-wrap"></div>
 
-  <!-- EFFICIENCY -->
-  <div class="sec"><div class="sec-lbl">各批次效率分析</div></div>
-  <div class="cc">
-    <div class="cc-hdr">
-      <div class="cc-title">⚡ 每人每小時產量 (KG/人時)</div>
-      <span class="cc-sub" id="eff-avg-lbl"></span>
-    </div>
-    <div class="cc-body"><div class="ch300"><canvas id="chart-eff"></canvas></div></div>
-  </div>
-
-  <!-- 步留率趨勢（獨立一行）-->
+  <!-- 步留率趨勢 -->
   <div class="sec"><div class="sec-lbl">步留率趨勢</div></div>
   <div class="cc">
     <div class="cc-hdr"><div class="cc-title">📈 步留率趨勢</div><span class="cc-sub" id="yr-avg-lbl"></span></div>
     <div class="cc-body"><div class="ch300"><canvas id="chart-yr"></canvas></div></div>
   </div>
 
-  <!-- 不良品率趨勢（獨立一行）-->
+  <!-- 不良品率趨勢 -->
   <div class="sec"><div class="sec-lbl">不良品率趨勢</div></div>
   <div class="cc">
     <div class="cc-hdr"><div class="cc-title">⚠️ 不良品率趨勢</div><span class="cc-sub" id="dr-avg-lbl"></span></div>
     <div class="cc-body"><div class="ch300"><canvas id="chart-dr"></canvas></div></div>
   </div>
 
-  <!-- TABLE -->
+  <!-- 效率圖 -->
+  <div class="sec"><div class="sec-lbl">各批次效率分析</div></div>
+  <div class="cc">
+    <div class="cc-hdr">
+      <div class="cc-title">⚡ 效率 KG/人時</div>
+      <span class="cc-sub" id="eff-avg-lbl"></span>
+    </div>
+    <div class="cc-body"><div class="ch300"><canvas id="chart-eff"></canvas></div></div>
+  </div>
+
+  <!-- 批次明細表（最下方）-->
   <div class="sec"><div class="sec-lbl">批次明細記錄</div></div>
   <div class="cc">
     <div class="cc-hdr">
@@ -233,24 +223,17 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 
 <script>
 var API='https://script.google.com/macros/s/AKfycbzp8GhrGvXay8HiQFBHDzmz6zZY1X5YYlr0TB_XBW6B-iueOyOHAUNJSSvF6qTUZAAdqA/exec';
-var CH={};
-var ALL=[];
-var SEL_FRUIT=null,SEL_OP=null;
+var CH={};var ALL=[];var SEL_FRUIT=null,SEL_OP=null;
 
-// 品種固定順序
-var FRUIT_ORDER=['芒果','蘋果','奇異果','蘿蔔','柚子','橘子'];
-
-// 品種顏色
+// 品種固定順序（3欄排列：芒果/蘋果/柚子 ↵ 奇異果/蘿蔔/橘子）
+var FRUIT_ORDER=['芒果','蘋果','柚子','奇異果','蘿蔔','橘子'];
 var FC={
-  '芒果':{col:'#e76f51',bg:'#fff7ed',ico:'🥭'},
-  '蘋果':{col:'#c1121f',bg:'#fee2e2',ico:'🍎'},
-  '奇異果':{col:'#2d6a4f',bg:'#f0fdf4',ico:'🥝'},
-  '蘿蔔':{col:'#748cab',bg:'#f8fafc',ico:'🌿'},
-  '柚子':{col:'#d4a017',bg:'#fefce8',ico:'🍈'},
-  '橘子':{col:'#f4a261',bg:'#fff7ed',ico:'🍊'}
+  '芒果':{col:'#e76f51',ico:'🥭'},'蘋果':{col:'#c1121f',ico:'🍎'},
+  '柚子':{col:'#d4a017',ico:'🍈'},'奇異果':{col:'#2d6a4f',ico:'🥝'},
+  '蘿蔔':{col:'#748cab',ico:'🌿'},'橘子':{col:'#f4a261',ico:'🍊'}
 };
 
-// 多產出品種設定（key需與Sheets作業類型完全一致，含全形括號）
+// MULTI_OUT（含耗損，key與Sheets作業類型完全一致）
 var MULTI_OUT={
   '柚子-剝柚子（取皮肉）':{
     title:'柚子剝柚子 — 產出結構',
@@ -258,7 +241,8 @@ var MULTI_OUT={
       {key:'skin',label:'柚皮',col:'#c8d840'},
       {key:'neck',label:'柚脖含柚皮頭',col:'#f59e0b'},
       {key:'flesh',label:'柚肉',col:'#d97706'},
-      {key:'def',label:'不良品',col:'#dc2626'}
+      {key:'def',label:'不良品',col:'#dc2626'},
+      {key:'loss',label:'耗損',col:'#94a3b8'}
     ]
   },
   '橘子-剝橘子（玻璃瓶）':{
@@ -267,7 +251,8 @@ var MULTI_OUT={
       {key:'flesh',label:'切片果肉',col:'#f97316'},
       {key:'skin',label:'橘子皮',col:'#f4a261'},
       {key:'juice',label:'果汁',col:'#fbbf24'},
-      {key:'def',label:'不良品',col:'#dc2626'}
+      {key:'def',label:'不良品',col:'#dc2626'},
+      {key:'loss',label:'耗損',col:'#94a3b8'}
     ]
   },
   '橘子-橘子榨汁（NY袋）':{
@@ -275,12 +260,12 @@ var MULTI_OUT={
     parts:[
       {key:'juice',label:'橘子果汁',col:'#fbbf24'},
       {key:'skin',label:'橘子皮',col:'#f4a261'},
-      {key:'def',label:'不良品',col:'#dc2626'}
+      {key:'def',label:'不良品',col:'#dc2626'},
+      {key:'loss',label:'耗損',col:'#94a3b8'}
     ]
   }
 };
 
-// 柚子詳細（B001-B005為內建，新資料從Sheets sub1/sub2讀取）
 var POMELO_DETAIL={
   'B001':{skin:550,neck:85,flesh:1339,raw:2000},
   'B002':{skin:1508,neck:0,flesh:3409,raw:5000},
@@ -288,20 +273,17 @@ var POMELO_DETAIL={
   'B004':{skin:2075,neck:0,flesh:4992,raw:7200},
   'B005':{skin:257,neck:44,flesh:677.3,raw:1000}
 };
-
-// 橘子詳細（B023/B024為內建，新資料從Sheets sub1/sub2讀取）
 var TANGERINE_DETAIL={
   'B023':{flesh:314,skin:138,juice:21,raw:480},
   'B024':{juice:106,skin:130,raw:246}
 };
 
-// 內建資料（op名稱已與Sheets統一使用全形括號）
 var BUILTIN=[
-  {id:'B001',date:'2024/09/06',fruit:'柚子',op:'剝柚子（取皮肉）',raw:2000,out:1339,def:26,yr:67.0,dr:1.3,lr:31.7,workers:20,mh:70,eff:7.9,notes:'廠內人員 含粗磨'},
-  {id:'B002',date:'2024/09/07~09/08',fruit:'柚子',op:'剝柚子（取皮肉）',raw:5000,out:3409,def:83,yr:68.2,dr:1.7,lr:30.1,workers:0,mh:0,eff:0,notes:'外勞作業'},
-  {id:'B003',date:'2024/09/11~09/13',fruit:'柚子',op:'剝柚子（取皮肉）',raw:1000,out:631,def:29,yr:63.1,dr:2.9,lr:34.0,workers:0,mh:0,eff:0,notes:'外勞作業'},
-  {id:'B004',date:'2024/09/13',fruit:'柚子',op:'剝柚子（取皮肉）',raw:7200,out:4992,def:133,yr:69.3,dr:1.8,lr:28.9,workers:0,mh:0,eff:0,notes:'開放民眾剝柚日'},
-  {id:'B005',date:'2024/09/18',fruit:'柚子',op:'剝柚子（取皮肉）',raw:1000,out:677.3,def:21.7,yr:67.7,dr:2.2,lr:30.1,workers:0,mh:0,eff:0,notes:'廠內人員 含粗磨'},
+  {id:'B001',date:'2024/09/06',fruit:'柚子',op:'剝柚子（取皮肉）',raw:2000,out:1339,def:26,yr:67.0,dr:1.3,lr:31.7,workers:20,mh:70,eff:7.9,notes:'廠內人員'},
+  {id:'B002',date:'2024/09/07',fruit:'柚子',op:'剝柚子（取皮肉）',raw:5000,out:3409,def:83,yr:68.2,dr:1.7,lr:30.1,workers:0,mh:0,eff:0,notes:'外勞作業'},
+  {id:'B003',date:'2024/09/11',fruit:'柚子',op:'剝柚子（取皮肉）',raw:1000,out:631,def:29,yr:63.1,dr:2.9,lr:34.0,workers:0,mh:0,eff:0,notes:'外勞作業'},
+  {id:'B004',date:'2024/09/13',fruit:'柚子',op:'剝柚子（取皮肉）',raw:7200,out:4992,def:133,yr:69.3,dr:1.8,lr:28.9,workers:0,mh:0,eff:0,notes:'開放日'},
+  {id:'B005',date:'2024/09/18',fruit:'柚子',op:'剝柚子（取皮肉）',raw:1000,out:677.3,def:21.7,yr:67.7,dr:2.2,lr:30.1,workers:0,mh:0,eff:0,notes:'廠內人員'},
   {id:'B006',date:'2024/09/06',fruit:'柚子',op:'切柚皮條',raw:400,out:381,def:19,yr:95.25,dr:4.8,lr:0,workers:4,mh:26,eff:3.8,notes:''},
   {id:'B007',date:'2024/09/08',fruit:'柚子',op:'切柚皮條',raw:105,out:100,def:5,yr:95.24,dr:4.8,lr:0,workers:2,mh:5,eff:10.5,notes:''},
   {id:'B008',date:'2024/09/18',fruit:'柚子',op:'切柚皮條',raw:227.5,out:211.5,def:16,yr:92.97,dr:7.0,lr:0,workers:2,mh:11,eff:10.3,notes:''},
@@ -311,13 +293,13 @@ var BUILTIN=[
   {id:'B012',date:'2024/09/12',fruit:'柚子',op:'切柚皮絲',raw:323,out:312,def:11,yr:96.59,dr:3.4,lr:0,workers:2,mh:16,eff:10.1,notes:''},
   {id:'B013',date:'2024/09/13',fruit:'柚子',op:'切柚皮絲',raw:363,out:340,def:23,yr:93.66,dr:6.3,lr:0,workers:4,mh:25,eff:3.6,notes:'開放日'},
   {id:'B014',date:'2024/09/14',fruit:'柚子',op:'切柚皮絲',raw:140,out:132,def:8,yr:94.29,dr:5.7,lr:0,workers:2,mh:6,eff:11.7,notes:''},
-  {id:'B015',date:'2024/09/18',fruit:'柚子',op:'剝柚肉',raw:156,out:78,def:78,yr:50.0,dr:50.0,lr:0,workers:12,mh:30,eff:0.4,notes:'柚囊78KG計入不良品'},
+  {id:'B015',date:'2024/09/18',fruit:'柚子',op:'剝柚肉',raw:156,out:78,def:78,yr:50.0,dr:50.0,lr:0,workers:12,mh:30,eff:0.4,notes:'柚囊計入不良品'},
   {id:'B016',date:'2024/11/21',fruit:'蘋果',op:'蘋果-切削',raw:972,out:834.15,def:137.85,yr:85.8,dr:14.2,lr:0,workers:23,mh:61.2,eff:15.9,notes:'直徑約90mm'},
   {id:'B017',date:'2024/12/11',fruit:'蘋果',op:'蘋果-切削',raw:252,out:218.4,def:33.6,yr:86.7,dr:13.3,lr:0,workers:13,mh:23,eff:10.96,notes:'直徑約80mm'},
   {id:'B018',date:'2024/08/16',fruit:'奇異果',op:'奇異果-切削',raw:994,out:812,def:182,yr:81.7,dr:18.3,lr:0,workers:16,mh:138,eff:7.2,notes:'果肉偏硬'},
   {id:'B019',date:'2025/09/01',fruit:'奇異果',op:'奇異果-切削',raw:2243.8,out:1770,def:473.8,yr:78.9,dr:21.1,lr:0,workers:33,mh:344,eff:6.5,notes:'果肉軟硬參雜'},
-  {id:'B020',date:'2025/07/16',fruit:'芒果',op:'芒果-切削',raw:2400,out:1632,def:768,yr:68.0,dr:32.0,lr:0,workers:36,mh:221,eff:10.9,notes:'約400~600g'},
-  {id:'B021',date:'2025/02/13',fruit:'蘿蔔',op:'蘿蔔-切削',raw:3900,out:3575.5,def:324.5,yr:91.7,dr:8.3,lr:0,workers:44,mh:80.7,eff:48.3,notes:'長度約25~40cm'},
+  {id:'B020',date:'2025/07/16',fruit:'芒果',op:'芒果-切削',raw:2400,out:1632,def:768,yr:68.0,dr:32.0,lr:0,workers:36,mh:221,eff:10.9,notes:'108籃'},
+  {id:'B021',date:'2025/02/13',fruit:'蘿蔔',op:'蘿蔔-切削',raw:3900,out:3575.5,def:324.5,yr:91.7,dr:8.3,lr:0,workers:44,mh:80.7,eff:48.3,notes:'25~40cm'},
   {id:'B022',date:'2026/02/24',fruit:'蘿蔔',op:'蘿蔔-切削',raw:4097.4,out:3765,def:332.4,yr:91.9,dr:8.1,lr:0,workers:32,mh:100.1,eff:40.94,notes:'20~45cm'},
   {id:'B023',date:'2026/02/10',fruit:'橘子',op:'剝橘子（玻璃瓶）',raw:480,out:314,def:7,yr:65.4,dr:1.5,lr:0,workers:21,mh:82,eff:6.86,notes:'果皮138KG 果汁21KG'},
   {id:'B024',date:'2026/02/10',fruit:'橘子',op:'橘子榨汁（NY袋）',raw:246,out:106,def:10,yr:43.1,dr:4.1,lr:0,workers:21,mh:36.2,eff:10.18,notes:'果汁106KG 果皮130KG'}
@@ -330,17 +312,14 @@ Chart.defaults.font.size=12;
 
 document.addEventListener('DOMContentLoaded',loadData);
 
-// ── 讀取資料 ──
 function loadData(){
   fetch(API+'?action=getBatches')
   .then(function(r){return r.json();})
   .then(function(data){
-    // v18 getBatches 直接回傳陣列
     var sheets=Array.isArray(data)?data:(data.batches||[]);
     var sids=sheets.map(function(r){return String(r['批次ID']||'');});
     var bi=BUILTIN.filter(function(b){return sids.indexOf(b.id)<0;});
-    var sc=sheets.map(cvtSheet);
-    ALL=bi.concat(sc);
+    ALL=bi.concat(sheets.map(cvtSheet));
     document.getElementById('upd-txt').textContent='更新：'+new Date().toLocaleTimeString('zh-TW');
     initFruits();
   })
@@ -352,27 +331,20 @@ function loadData(){
 }
 
 function cvtSheet(r){
-  var raw=parseFloat(r['原料重量 KG'])||parseFloat(r['原料重量KG'])||0;
-  var out=parseFloat(r['主產出 KG'])||parseFloat(r['主產出KG'])||0;
-  var def=parseFloat(r['不良品 KG'])||parseFloat(r['不良品KG'])||0;
-  var sub1=parseFloat(r['副產出1 KG'])||parseFloat(r['副產出1KG'])||0;
-  var sub2=parseFloat(r['副產出2 KG'])||parseFloat(r['副產出2KG'])||0;
-  function pct(key){
-    var v=parseFloat(String(r[key]||'').replace('%',''))||0;
-    return(v>0&&v<1)?v*100:v;
-  }
+  function pct(k){var v=parseFloat(String(r[k]||'').replace('%',''))||0;return(v>0&&v<1)?v*100:v;}
   return{
-    id:String(r['批次ID']||''),
-    date:fmtDate(r['作業日期']),
-    fruit:String(r['品種']||''),
-    op:String(r['作業類型']||''),
-    raw:raw,out:out,def:def,sub1:sub1,sub2:sub2,
+    id:String(r['批次ID']||''),date:fmtDate(r['作業日期']),
+    fruit:String(r['品種']||''),op:String(r['作業類型']||''),
+    raw:parseFloat(r['原料重量 KG'])||0,
+    out:parseFloat(r['主產出 KG'])||0,
+    def:parseFloat(r['不良品 KG'])||0,
+    sub1:parseFloat(r['副產出1 KG'])||0,
+    sub2:parseFloat(r['副產出2 KG'])||0,
     yr:pct('步留率%'),dr:pct('不良品率%'),lr:pct('耗損率%'),
     workers:parseFloat(r['作業人數'])||0,
     mh:parseFloat(r['總人力工時hr'])||0,
     eff:parseFloat(r['效率KG/人時'])||0,
-    notes:String(r['備註']||''),
-    source:String(r['資料來源']||'')
+    notes:String(r['備註']||'')
   };
 }
 
@@ -382,15 +354,13 @@ function fmtDate(d){
   if(s.indexOf('T')>-1)s=s.slice(0,10);
   return s.replace(/-/g,'/');
 }
-
 function avg(arr){return arr.length?arr.reduce(function(s,v){return s+v;},0)/arr.length:0;}
 
-// ── 品種按鈕（固定順序）──
+// 品種按鈕（固定3欄順序）
 function initFruits(){
   var counts={};
   ALL.forEach(function(r){if(r.fruit)counts[r.fruit]=(counts[r.fruit]||0)+1;});
   var order=FRUIT_ORDER.filter(function(f){return counts[f];});
-  // 加入不在固定順序中的品種
   Object.keys(counts).forEach(function(f){if(order.indexOf(f)<0)order.push(f);});
   document.getElementById('fruit-btns').innerHTML=order.map(function(f){
     var fc=FC[f]||{col:'#6b8f71',ico:'🌱'};
@@ -406,9 +376,7 @@ function selFruit(fruit){
   document.querySelectorAll('.fbtn').forEach(function(b){
     var on=b.dataset.fruit===fruit;
     b.classList.toggle('on',on);
-    b.style.background=on?fc.col:'';
-    b.style.borderColor=on?fc.col:'';
-    b.style.color=on?'#fff':'';
+    b.style.background=on?fc.col:'';b.style.borderColor=on?fc.col:'';b.style.color=on?'#fff':'';
   });
   var ops={};
   ALL.filter(function(r){return r.fruit===fruit;}).forEach(function(r){if(r.op)ops[r.op]=(ops[r.op]||0)+1;});
@@ -430,20 +398,26 @@ function render(){
   var rows=ALL.filter(function(r){return r.fruit===SEL_FRUIT&&r.op===SEL_OP;});
   rows.sort(function(a,b){return a.date.localeCompare(b.date);});
   if(!rows.length){
-    document.getElementById('stat-row').innerHTML='<div class="empty" style="grid-column:1/-1">尚無此作業的資料</div>';
+    document.getElementById('stat-row').innerHTML='<div class="empty" style="grid-column:1/-1">尚無資料</div>';
     return;
   }
   renderStats(rows);
-  renderBreakdown(rows);
-  renderStacked(rows);
-  renderCompare(rows);
-  renderEff(rows);
-  renderYr(rows);
-  renderDr(rows);
-  renderTable(rows);
+  // 智慧顯示：多產出品種→Breakdown，單一產出→三段堆疊
+  var isMultiOut=!!(MULTI_OUT[SEL_FRUIT+'-'+SEL_OP]);
+  var stackedSec=document.getElementById('stacked-section');
+  if(isMultiOut){
+    renderBreakdown(rows);
+    if(stackedSec)stackedSec.classList.add('hidden');
+  }else{
+    document.getElementById('breakdown-section').classList.add('hidden');
+    if(stackedSec)stackedSec.classList.remove('hidden');
+    renderStacked(rows);
+  }
+  renderCompare(rows);renderYr(rows);renderDr(rows);
+  renderEff(rows);renderTable(rows);
 }
 
-// ── KPI STATS（3欄，8張卡）──
+// KPI 8張（3欄）
 function renderStats(rows){
   var tRaw=rows.reduce(function(s,r){return s+r.raw;},0);
   var tOut=rows.reduce(function(s,r){return s+r.out;},0);
@@ -451,28 +425,19 @@ function renderStats(rows){
   var avgDr=avg(rows.map(function(r){return r.dr;}).filter(Boolean));
   var avgLr=avg(rows.map(function(r){return r.lr;}).filter(function(v){return v>0;}));
   var effs=rows.filter(function(r){return r.eff>0;}).map(function(r){return r.eff;});
-  var avgEff=avg(effs);
   var yrs=rows.map(function(r){return r.yr;}).filter(Boolean);
-  var maxYr=yrs.length?Math.max.apply(null,yrs):0;
-  var minYr=yrs.length?Math.min.apply(null,yrs):0;
   var fc=FC[SEL_FRUIT]||{col:'#2d6a4f'};
-
+  var yrC=avgYr>=80?'#15803d':avgYr>=65?'#d97706':'#dc2626';
   var stats=[
-    // 行1
     {lbl:'批次數',val:rows.length,unit:'批',sc:fc.col,sv:fc.col},
     {lbl:'總投入量',val:tRaw.toFixed(0),unit:'KG',sc:'#748cab',sv:'#445e78'},
-    {lbl:'平均效率',val:avgEff>0?avgEff.toFixed(1):'N/A',unit:'KG/人時',sc:'#219ebc',sv:'#0d6e8a'},
-    // 行2
-    {lbl:'平均步留率',val:avgYr.toFixed(1),unit:'%',
-      sc:avgYr>=80?'#15803d':avgYr>=65?'#d97706':'#dc2626',
-      sv:avgYr>=80?'#14532d':avgYr>=65?'#92400e':'#991b1b'},
-    {lbl:'最高步留率',val:maxYr.toFixed(1),unit:'%',sc:'#15803d',sv:'#14532d'},
-    {lbl:'最低步留率',val:minYr.toFixed(1),unit:'%',sc:'#dc2626',sv:'#991b1b'},
-    // 行3
+    {lbl:'平均效率',val:effs.length?avg(effs).toFixed(1):'N/A',unit:'KG/人時',sc:'#219ebc',sv:'#0d6e8a'},
+    {lbl:'平均步留率',val:avgYr.toFixed(1),unit:'%',sc:yrC,sv:yrC},
+    {lbl:'最高步留率',val:yrs.length?Math.max.apply(null,yrs).toFixed(1):'N/A',unit:'%',sc:'#15803d',sv:'#14532d'},
+    {lbl:'最低步留率',val:yrs.length?Math.min.apply(null,yrs).toFixed(1):'N/A',unit:'%',sc:'#dc2626',sv:'#991b1b'},
     {lbl:'平均不良品率',val:avgDr.toFixed(1),unit:'%',sc:'#dc2626',sv:'#991b1b'},
     {lbl:'平均耗損率',val:avgLr>0?avgLr.toFixed(1):'0.0',unit:'%',sc:'#748cab',sv:'#445e78'}
   ];
-
   document.getElementById('stat-row').innerHTML=stats.map(function(s){
     return'<div class="stat" style="--sc:'+s.sc+';--sv:'+s.sv+'">'+
       '<div class="stat-lbl">'+s.lbl+'</div>'+
@@ -481,7 +446,34 @@ function renderStats(rows){
   }).join('');
 }
 
-// ── BREAKDOWN（多產出）──
+// Breakdown（含耗損段）
+function getDetail(r){
+  if(SEL_FRUIT==='柚子'&&SEL_OP==='剝柚子（取皮肉）'){
+    var d=POMELO_DETAIL[r.id];
+    if(!d&&(r.sub1||r.sub2||r.out))d={skin:r.sub1||0,neck:r.sub2||0,flesh:r.out||0,raw:r.raw};
+    return d;
+  }
+  if(SEL_FRUIT==='橘子'){
+    var td=TANGERINE_DETAIL[r.id];
+    if(!td){
+      if(SEL_OP==='剝橘子（玻璃瓶）')td={flesh:r.out,skin:r.sub1,juice:r.sub2};
+      else td={juice:r.out,skin:r.sub1};
+    }
+    return td;
+  }
+  return null;
+}
+
+function calcLossPct(r,detail,cfg){
+  if(!detail)return 0;
+  var sumParts=0;
+  cfg.parts.forEach(function(p){
+    if(p.key!=='loss'&&p.key!=='def'&&detail[p.key])sumParts+=detail[p.key];
+  });
+  var loss=Math.max(r.raw-sumParts-r.def,0);
+  return r.raw>0?loss/r.raw*100:0;
+}
+
 function renderBreakdown(rows){
   var key=SEL_FRUIT+'-'+SEL_OP;
   var cfg=MULTI_OUT[key];
@@ -493,31 +485,26 @@ function renderBreakdown(rows){
 
   var totals={};cfg.parts.forEach(function(p){totals[p.key]=0;});
   var tRaw=0;
-
   rows.forEach(function(r){
     tRaw+=r.raw;
     var detail=getDetail(r);
     cfg.parts.forEach(function(p){
       if(p.key==='def')totals.def+=r.def;
+      else if(p.key==='loss'){
+        var sumP=0;
+        cfg.parts.forEach(function(p2){if(p2.key!=='loss'&&p2.key!=='def'&&detail&&detail[p2.key])sumP+=detail[p2.key];});
+        totals.loss+=Math.max(r.raw-sumP-r.def,0);
+      }
       else if(detail&&detail[p.key])totals[p.key]+=detail[p.key];
     });
   });
 
-  document.getElementById('breakdown-grid').innerHTML=cfg.parts.map(function(p){
-    var kg=totals[p.key]||0;
-    var pct=tRaw>0?kg/tRaw*100:0;
-    return'<div class="bk" style="--bc:'+p.col+'">'+
-      '<div class="bk-lbl">'+p.label+'</div>'+
-      '<div class="bk-val">'+kg.toFixed(0)+'</div>'+
-      '<div class="bk-unit">KG（合計）</div>'+
-      '<div class="bk-pct">≈ '+pct.toFixed(1)+'%</div></div>';
-  }).join('');
-
-  var labels=rows.map(function(r){return r.id+'\n'+r.date;});
+  var labels=rows.map(function(r){return r.date;});
   var datasets=cfg.parts.map(function(p){
     var data=rows.map(function(r){
       var detail=getDetail(r);
       if(p.key==='def')return r.raw>0?r.def/r.raw*100:0;
+      if(p.key==='loss')return calcLossPct(r,detail,cfg);
       if(detail&&detail[p.key]!==undefined)return r.raw>0?detail[p.key]/r.raw*100:0;
       return null;
     });
@@ -529,42 +516,24 @@ function renderBreakdown(rows){
     plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
         callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';}}}},
-    scales:{x:{stacked:true,ticks:{maxRotation:45}},
-      y:{stacked:true,max:105,ticks:{callback:function(v){return v+'%';}}}}
+    scales:{
+      x:{stacked:true,ticks:{maxRotation:45}},
+      y:{stacked:true,max:110,title:{display:true,text:'%'},
+        ticks:{stepSize:10,callback:function(v){return v;}}}
+    }
   }});
 }
 
-function getDetail(r){
-  if(SEL_FRUIT==='柚子'&&SEL_OP==='剝柚子（取皮肉）'){
-    var d=POMELO_DETAIL[r.id];
-    if(!d&&(r.sub1||r.sub2||r.out))
-      d={skin:r.sub1||0,neck:r.sub2||0,flesh:r.out||0,raw:r.raw};
-    return d;
-  }
-  if(SEL_FRUIT==='橘子'){
-    var td=TANGERINE_DETAIL[r.id];
-    if(!td){
-      if(SEL_OP==='剝橘子（玻璃瓶）')
-        td={flesh:r.out,skin:r.sub1,juice:r.sub2};
-      else
-        td={juice:r.out,skin:r.sub1};
-    }
-    return td;
-  }
-  return null;
-}
-
-// ── 三段堆疊圖（步留率+耗損率+不良品率=100%）──
+// 三段堆疊圖（X軸=日期）
 function renderStacked(rows){
-  var labels=rows.map(function(r){return r.id;});
+  var labels=rows.map(function(r){return r.date;});
   var fc=FC[SEL_FRUIT]||{col:'#2d6a4f'};
   var datasets=[
     {label:'步留率',data:rows.map(function(r){return parseFloat(r.yr.toFixed(1))||0;}),
       backgroundColor:fc.col+'cc',borderColor:fc.col,borderWidth:1},
     {label:'作業耗損率',data:rows.map(function(r){
-      var lr=r.lr>0?r.lr:Math.max(100-r.yr-r.dr,0);
-      return parseFloat(lr.toFixed(1));
-    }),backgroundColor:'rgba(116,140,171,.5)',borderColor:'#748cab',borderWidth:1},
+      return parseFloat(Math.max(r.lr>0?r.lr:100-r.yr-r.dr,0).toFixed(1));
+    }),backgroundColor:'rgba(116,140,171,.55)',borderColor:'#748cab',borderWidth:1},
     {label:'不良品率',data:rows.map(function(r){return parseFloat(r.dr.toFixed(1))||0;}),
       backgroundColor:'rgba(220,38,38,.65)',borderColor:'#dc2626',borderWidth:1}
   ];
@@ -573,104 +542,120 @@ function renderStacked(rows){
     plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
         callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';}}}},
-    scales:{x:{stacked:true,ticks:{maxRotation:45}},
-      y:{stacked:true,min:0,max:105,
-        ticks:{callback:function(v){return v+'%';}}}}
+    scales:{
+      x:{stacked:true,ticks:{maxRotation:45}},
+      y:{stacked:true,min:0,max:110,title:{display:true,text:'%'},
+        ticks:{stepSize:10,callback:function(v){return v;}}}
+    }
   }});
 }
 
-// ── COMPARE ──
+// 三欄比較表（最佳/最差）
 function renderCompare(rows){
   var effRows=rows.filter(function(r){return r.eff>0&&r.mh>0;});
   if(!effRows.length){
-    document.getElementById('cmp-grid').innerHTML='<div style="color:var(--ink4);padding:20px;grid-column:1/-1;text-align:center">無效率記錄</div>';
+    document.getElementById('cmp-wrap').innerHTML='<div class="empty">無效率記錄</div>';
     return;
   }
   var sorted=effRows.slice().sort(function(a,b){return b.eff-a.eff;});
   var best=sorted[0],worst=sorted[sorted.length-1];
-  function cmpHtml(r,isBest){
-    return'<div class="cmp '+(isBest?'cmp-best':'cmp-worst')+'">'+
-      '<div class="cmp-title" style="color:'+(isBest?'var(--green-m)':'var(--red-m)')+'">'+
-      (isBest?'🏆 最佳批':'⚠️ 最差批')+'</div>'+
-      '<div class="cmp-row"><span class="cmp-key">批次</span><span class="cmp-val">'+r.id+'</span></div>'+
-      '<div class="cmp-row"><span class="cmp-key">日期</span><span class="cmp-val">'+r.date+'</span></div>'+
-      '<div class="cmp-row"><span class="cmp-key">投入量</span><span class="cmp-val">'+r.raw.toLocaleString()+' KG</span></div>'+
-      '<div class="cmp-row"><span class="cmp-key">步留率</span><span class="cmp-val" style="color:'+(isBest?'var(--green-m)':'var(--red-m)')+'">'+r.yr.toFixed(1)+'%</span></div>'+
-      '<div class="cmp-row"><span class="cmp-key">不良品率</span><span class="cmp-val">'+r.dr.toFixed(1)+'%</span></div>'+
-      '<div class="cmp-row"><span class="cmp-key">效率</span><span class="cmp-val" style="color:'+(isBest?'var(--green-m)':'var(--red-m)')+'">'+r.eff.toFixed(2)+' KG/人時</span></div>'+
-      (r.notes?'<div class="cmp-row"><span class="cmp-key">備註</span><span style="font-size:11px;color:var(--ink3)">'+r.notes+'</span></div>':'')+
-      '</div>';
-  }
-  document.getElementById('cmp-grid').innerHTML=cmpHtml(best,true)+cmpHtml(worst,false);
+  var fields=[
+    {lbl:'批次',fn:function(r){return r.id;}},
+    {lbl:'日期',fn:function(r){return r.date;}},
+    {lbl:'投入量',fn:function(r){return r.raw.toLocaleString()+' KG';}},
+    {lbl:'步留率',fn:function(r,isBest){
+      return'<span style="color:'+(isBest?'var(--green-m)':'var(--red-m)')+'">'+r.yr.toFixed(1)+'%</span>';}},
+    {lbl:'不良品率',fn:function(r){return r.dr.toFixed(1)+'%';}},
+    {lbl:'耗損率',fn:function(r){var lr=r.lr>0?r.lr:Math.max(100-r.yr-r.dr,0);return lr.toFixed(1)+'%';}},
+    {lbl:'效率',fn:function(r,isBest){
+      return'<span style="color:'+(isBest?'var(--green-m)':'var(--red-m)')+'">'+r.eff.toFixed(2)+' KG/人時</span>';}}
+  ];
+
+  var html='<div class="cmp-tbl">';
+  // 標題列
+  html+='<div class="cmp-th cmp-th-key"></div>';
+  html+='<div class="cmp-th cmp-th-best">🏆 最佳批</div>';
+  html+='<div class="cmp-th cmp-th-worst">⚠️ 最差批</div>';
+  // 資料列
+  fields.forEach(function(f){
+    html+='<div class="cmp-cell cmp-cell-key">'+f.lbl+'</div>';
+    html+='<div class="cmp-cell cmp-cell-best">'+f.fn(best,true)+'</div>';
+    html+='<div class="cmp-cell cmp-cell-worst">'+f.fn(worst,false)+'</div>';
+  });
+  html+='</div>';
+  document.getElementById('cmp-wrap').innerHTML=html;
 }
 
-// ── EFFICIENCY CHART ──
-function renderEff(rows){
-  var labels=rows.map(function(r){return r.id;});
-  var effs=rows.map(function(r){return r.eff>0?r.eff:null;});
-  var valid=effs.filter(Boolean);
-  var avgE=valid.length?avg(valid):0;
-  var fc=FC[SEL_FRUIT]||{col:'#2d6a4f'};
-  document.getElementById('eff-avg-lbl').textContent='平均 '+avgE.toFixed(2)+' KG/人時';
-  var bgCols=rows.map(function(r){return r.eff>0?(r.eff>=avgE?fc.col+'cc':'rgba(220,38,38,.7)'):'rgba(148,163,184,.3)';});
-  mk('chart-eff',{type:'bar',data:{labels:labels,datasets:[
-    {label:'效率 KG/人時',data:effs,backgroundColor:bgCols,borderColor:bgCols,borderWidth:1.5,borderRadius:5},
-    {type:'line',label:'平均 '+avgE.toFixed(1),data:labels.map(function(){return avgE||null;}),
-      borderColor:'#94a3b8',borderDash:[5,4],borderWidth:2,pointRadius:0,fill:false}
-  ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:14}},
-      tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
-        callbacks:{label:function(c){return c.dataset.label+': '+(c.parsed.y?c.parsed.y.toFixed(2)+' KG/人時':'無工時記錄');}}}},
-    scales:{x:{ticks:{maxRotation:45}},y:{ticks:{callback:function(v){return v+' KG/人時';}}}}
-  }});
-}
-
-// ── 步留率趨勢（折線+填色）──
+// 步留率折線+填色（annotation平均線，X軸=日期，Y軸整數）
 function renderYr(rows){
-  var labels=rows.map(function(r){return r.id;});
+  var labels=rows.map(function(r){return r.date;});
   var yrs=rows.map(function(r){return r.yr||null;});
   var valid=yrs.filter(Boolean);
   var avgYr=valid.length?avg(valid):0;
   var fc=FC[SEL_FRUIT]||{col:'#2d6a4f'};
   document.getElementById('yr-avg-lbl').textContent='平均 '+avgYr.toFixed(1)+'%';
   mk('chart-yr',{type:'line',data:{labels:labels,datasets:[
-    {label:'步留率',data:yrs,borderColor:fc.col,backgroundColor:fc.col+'22',fill:true,tension:0.4,
-      pointRadius:7,pointHoverRadius:10,
+    {label:'步留率',data:yrs,borderColor:fc.col,backgroundColor:fc.col+'25',fill:true,
+      tension:0.4,pointRadius:7,pointHoverRadius:10,
       pointBackgroundColor:rows.map(function(r){return r.yr>=avgYr?fc.col:'#dc2626';}),
-      pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:2.5,spanGaps:true},
-    {label:'平均 '+avgYr.toFixed(1)+'%',data:labels.map(function(){return avgYr||null;}),
-      borderColor:'#9ab89f',borderDash:[5,4],borderWidth:2,pointRadius:0,fill:false}
+      pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:2.5,spanGaps:true}
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:14}},
+    plugins:{
+      legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
-        callbacks:{label:function(c){return c.dataset.label+': '+(c.parsed.y?c.parsed.y.toFixed(1)+'%':'無資料');}}}},
-    scales:{x:{ticks:{maxRotation:45}},y:{ticks:{callback:function(v){return v+'%';}}}}
+        callbacks:{label:function(c){return '步留率: '+(c.parsed.y?c.parsed.y.toFixed(1)+'%':'無資料');}}},
+      annotation:{annotations:{avgLine:{
+        type:'line',yMin:avgYr,yMax:avgYr,
+        borderColor:'#94a3b8',borderDash:[5,4],borderWidth:2,
+        label:{display:true,content:'平均 '+avgYr.toFixed(1)+'%',position:'end',
+          backgroundColor:'rgba(148,163,184,.8)',color:'#fff',font:{size:11}}
+      }}}
+    },
+    scales:{
+      x:{ticks:{maxRotation:45}},
+      y:{title:{display:true,text:'%'},
+        min:Math.max(0,Math.floor(Math.min.apply(null,valid))-3),
+        max:Math.ceil(Math.max.apply(null,valid))+3,
+        ticks:{stepSize:1,precision:0,callback:function(v){return v;}}}
+    }
   }});
 }
 
-// ── 不良品率趨勢（長條）──
+// 不良品率折線+填色（annotation平均線，X軸=日期，Y軸整數）
 function renderDr(rows){
-  var labels=rows.map(function(r){return r.id;});
+  var labels=rows.map(function(r){return r.date;});
   var drs=rows.map(function(r){return r.dr||null;});
   var valid=drs.filter(Boolean);
   var avgDr=valid.length?avg(valid):0;
   document.getElementById('dr-avg-lbl').textContent='平均 '+avgDr.toFixed(1)+'%';
-  mk('chart-dr',{type:'bar',data:{labels:labels,datasets:[
-    {label:'不良品率',data:drs,
-      backgroundColor:rows.map(function(r){return r.dr>avgDr?'rgba(220,38,38,.75)':'rgba(244,162,97,.75)';}),
-      borderColor:rows.map(function(r){return r.dr>avgDr?'#dc2626':'#f4a261';}),
-      borderWidth:1.5,borderRadius:5},
-    {type:'line',label:'平均 '+avgDr.toFixed(1)+'%',data:labels.map(function(){return avgDr||null;}),
-      borderColor:'#9ab89f',borderDash:[5,4],borderWidth:2,pointRadius:0,fill:false}
+  mk('chart-dr',{type:'line',data:{labels:labels,datasets:[
+    {label:'不良品率',data:drs,borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.12)',fill:true,
+      tension:0.4,pointRadius:7,pointHoverRadius:10,
+      pointBackgroundColor:rows.map(function(r){return r.dr<=avgDr?'#15803d':'#dc2626';}),
+      pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:2.5,spanGaps:true}
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:14}},
+    plugins:{
+      legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
-        callbacks:{label:function(c){return c.dataset.label+': '+(c.parsed.y?c.parsed.y.toFixed(1)+'%':'無資料');}}}},
-    scales:{x:{ticks:{maxRotation:45}},y:{ticks:{callback:function(v){return v+'%';}}}}
+        callbacks:{label:function(c){return '不良品率: '+(c.parsed.y?c.parsed.y.toFixed(1)+'%':'無資料');}}},
+      annotation:{annotations:{avgLine:{
+        type:'line',yMin:avgDr,yMax:avgDr,
+        borderColor:'#94a3b8',borderDash:[5,4],borderWidth:2,
+        label:{display:true,content:'平均 '+avgDr.toFixed(1)+'%',position:'end',
+          backgroundColor:'rgba(148,163,184,.8)',color:'#fff',font:{size:11}}
+      }}}
+    },
+    scales:{
+      x:{ticks:{maxRotation:45}},
+      y:{title:{display:true,text:'%'},
+        min:Math.max(0,Math.floor(Math.min.apply(null,valid))-3),
+        max:Math.ceil(Math.max.apply(null,valid))+3,
+        ticks:{stepSize:1,precision:0,callback:function(v){return v;}}}
+    }
   }});
 }
 
-// ── 批次明細表（加耗損率，手機隱藏備註）──
+// 批次明細表（刪批次欄，加耗損率，手機隱藏備註）
 function renderTable(rows){
   var effRows=rows.filter(function(r){return r.eff>0;});
   var bestEff=effRows.length?Math.max.apply(null,effRows.map(function(r){return r.eff;})):0;
@@ -685,7 +670,6 @@ function renderTable(rows){
     return'<tr class="'+(isBest?'best':isWorst?'worst':'')+'">'+
       '<td style="font-size:16px">'+(isBest?'🏆':isWorst?'⚠️':'')+'</td>'+
       '<td style="white-space:nowrap;font-size:12px">'+r.date+'</td>'+
-      '<td style="color:var(--ink3);font-size:11px">'+r.id+'</td>'+
       '<td style="text-align:right">'+r.raw.toLocaleString()+'</td>'+
       '<td style="text-align:right">'+r.out.toLocaleString()+'</td>'+
       '<td><span class="badge '+yrCls+'">'+r.yr.toFixed(1)+'%</span></td>'+
@@ -695,20 +679,54 @@ function renderTable(rows){
       '<td style="text-align:center">'+(r.workers||'-')+'</td>'+
       '<td style="text-align:center">'+(r.mh||'-')+'</td>'+
       '<td style="font-weight:700;text-align:right;color:'+(r.eff>0?(isBest?'var(--green-m)':isWorst?'var(--red-m)':'var(--ink)'):'var(--ink4)')+'">'+
-      (r.eff>0?r.eff.toFixed(2):'無記錄')+'</td>'+
-      '<td class="hide-mobile" style="font-size:12px;color:var(--ink3);max-width:180px">'+r.notes+'</td>'+
+      (r.eff>0?r.eff.toFixed(2):'—')+'</td>'+
+      '<td class="hide-mobile" style="font-size:12px;color:var(--ink3)">'+r.notes+'</td>'+
       '</tr>';
   }).join('');
 
   document.getElementById('batch-table').innerHTML=
     '<table class="btbl"><thead><tr>'+
-    '<th></th><th>日期</th><th>批次</th>'+
+    '<th></th><th>日期</th>'+
     '<th style="text-align:right">投入KG</th><th style="text-align:right">主產出KG</th>'+
-    '<th>步留率</th><th>不良品率</th><th>耗損率</th><th style="text-align:right">不良品KG</th>'+
+    '<th>步留率</th><th>不良品率</th><th>耗損率</th>'+
+    '<th style="text-align:right">不良品KG</th>'+
     '<th style="text-align:center">人數</th><th style="text-align:center">工時hr</th>'+
     '<th style="text-align:right">效率KG/人時</th>'+
     '<th class="hide-mobile">備註</th>'+
     '</tr></thead><tbody>'+html+'</tbody></table>';
+}
+
+// 效率圖（最下方，annotation平均線，X軸=日期，Y軸=數字+單位標題）
+function renderEff(rows){
+  var labels=rows.map(function(r){return r.date;});
+  var effs=rows.map(function(r){return r.eff>0?r.eff:null;});
+  var valid=effs.filter(Boolean);
+  var avgE=valid.length?avg(valid):0;
+  var fc=FC[SEL_FRUIT]||{col:'#2d6a4f'};
+  document.getElementById('eff-avg-lbl').textContent='平均 '+avgE.toFixed(2)+' KG/人時';
+  var bgCols=rows.map(function(r){return r.eff>0?(r.eff>=avgE?fc.col+'cc':'rgba(220,38,38,.7)'):'rgba(148,163,184,.3)';});
+  mk('chart-eff',{type:'bar',data:{labels:labels,datasets:[
+    {label:'效率 KG/人時',data:effs,backgroundColor:bgCols,borderColor:bgCols,borderWidth:1.5,borderRadius:5}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'top',labels:{usePointStyle:true,padding:14}},
+      tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
+        callbacks:{label:function(c){return '效率: '+(c.parsed.y?c.parsed.y.toFixed(2)+' KG/人時':'無工時記錄');}}},
+      annotation:{annotations:{avgLine:{
+        type:'line',yMin:avgE,yMax:avgE,
+        borderColor:'#94a3b8',borderDash:[5,4],borderWidth:2,
+        label:{display:true,content:'平均 '+avgE.toFixed(2)+' KG/人時',position:'end',
+          backgroundColor:'rgba(148,163,184,.8)',color:'#fff',font:{size:11}}
+      }}}
+    },
+    scales:{
+      x:{ticks:{maxRotation:45}},
+      y:{title:{display:true,text:'KG/人時'},
+        min:0,
+        max:(function(){var m=valid.length?Math.max.apply(null,valid):10;return Math.max(5,Math.ceil(m*1.3));})(),
+        ticks:{precision:1,callback:function(v){return v;}}}
+    }
+  }});
 }
 
 function mk(id,cfg){
