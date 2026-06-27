@@ -212,7 +212,7 @@ tr:hover td{background:var(--bg2)}
 .sc-unit{font-size:12px;color:var(--ink4);margin-top:3px}
 
 /* ══ FILTER BAR ══════════════════════════ */
-.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow-sm)}
+.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow-sm)}.fbar .fi,.fbar .fs{flex:1;min-width:100px;height:40px;padding:0 10px;box-sizing:border-box}.fbar .btn{height:40px;white-space:nowrap;flex-shrink:0}
 
 /* ══ MODALS ══════════════════════════════ */
 .mov{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
@@ -430,14 +430,14 @@ tr:hover td{background:var(--bg2)}
     </div>
   </div>
   <div class="fbar">
-    <select class="fs" id="rf-fruit" onchange="filterRecs()" style="width:120px">
+    <select class="fs" id="rf-fruit" onchange="filterRecs()">
       <option value="">全部品種</option>
-      <option>柚子</option><option>蘋果</option><option>芒果</option>
-      <option>奇異果</option><option>橘子</option><option>蘿蔔</option>
+      <option>芒果</option><option>蘋果</option><option>奇異果</option>
+      <option>蘿蔔</option><option>柚子</option><option>橘子</option>
     </select>
-    <input type="date" class="fi" id="rf-from" onchange="filterRecs()" style="width:140px">
-    <input type="date" class="fi" id="rf-to" onchange="filterRecs()" style="width:140px">
-    <input class="fi" id="rf-q" oninput="filterRecs()" placeholder="搜尋..." style="width:140px">
+    <input type="date" class="fi" id="rf-from" onchange="filterRecs()">
+    <input type="date" class="fi" id="rf-to" onchange="filterRecs()">
+    <input class="fi" id="rf-q" oninput="filterRecs()" placeholder="搜尋...">
     <button class="btn btn-sm" onclick="clearRF()">✕ 清除</button>
     <span id="rec-count" style="font-size:12px;color:var(--ink4)"></span>
   </div>
