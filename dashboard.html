@@ -788,9 +788,30 @@ function exportPDF(){
   var dateStr=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
   var fname='五惠「'+(SEL_FRUIT||'全部')+'」原料處理_'+dateStr+'.pdf';
 
+  // 匯出前：把所有寬高為0或隱藏section內的canvas暫時設為不顯示，避免html2canvas報錯
+  var hiddenEls=[];
+  document.querySelectorAll('.main canvas').forEach(function(cv){
+    if(cv.offsetWidth===0||cv.offsetHeight===0){
+      var wrap=cv.closest('.cc')||cv.parentElement;
+      if(wrap&&wrap.style.display!=='none'){
+        hiddenEls.push({el:wrap,prev:wrap.style.display});
+        wrap.style.display='none';
+      }
+    }
+  });
+  function restoreEls(){hiddenEls.forEach(function(h){h.el.style.display=h.prev;});}
+
   html2canvas(target,{
     scale:2, useCORS:true, backgroundColor:'#f5f9f5', logging:false,
-    windowWidth:target.scrollWidth, windowHeight:target.scrollHeight
+    windowWidth:target.scrollWidth, windowHeight:target.scrollHeight,
+    ignoreElements:function(el){
+      // 忽略隱藏元素（display:none 或寬高為0的canvas），避免 createPattern 錯誤
+      if(el.classList&&el.classList.contains('hidden'))return true;
+      if(el.tagName==='CANVAS'&&(el.offsetWidth===0||el.offsetHeight===0))return true;
+      var st=window.getComputedStyle(el);
+      if(st.display==='none'||st.visibility==='hidden')return true;
+      return false;
+    }
   }).then(function(canvas){
     var jsPDF=window.jspdf.jsPDF;
     var pdf=new jsPDF('p','mm','a4');
@@ -829,8 +850,10 @@ function exportPDF(){
     }
 
     pdf.save(fname);
+    restoreEls();
     btn.textContent=old;btn.disabled=false;
   }).catch(function(err){
+    restoreEls();
     alert('匯出失敗：'+err.message);
     btn.textContent=old;btn.disabled=false;
   });
