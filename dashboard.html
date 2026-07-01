@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root{
   --primary:#2d6a4f;--primary-m:#40916c;--primary-l:#d8f3dc;--primary-b:#95d5b2;
@@ -141,29 +142,39 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 .empty{text-align:center;padding:60px;color:var(--ink4)}
 
 /* ── 列印專用（匯出PDF）── */
+.print-break{display:none}
 @media print{
-  @page{size:A4 portrait;margin:8mm}
-  html,body{background:#fff!important;width:194mm!important}
-  body{font-size:11px}
-  .topbar{position:static!important;box-shadow:none!important}
+  @page{size:A4 portrait;margin:7mm}
+  html,body{background:#fff!important;width:196mm!important}
+  body{font-size:10px}
+  .topbar{position:static!important;box-shadow:none!important;padding:6px 12px!important}
+  .brand-name{font-size:16px!important}
   .topnav,.live-pill,#btn-pdf{display:none!important}
-  /* 固定內容寬度為A4可用寬度，圖表responsive會自動縮放，避免右側被切 */
-  .main{max-width:194mm!important;width:194mm!important;padding:0!important;margin:0!important}
-  .selector-bar{box-shadow:none;border:1px solid #ccc}
-  /* 卡片/圖表避免跨頁被切斷 */
-  .cc,.cmp-wrap,.cmp-body,.stat,.selector-bar{break-inside:avoid;page-break-inside:avoid}
-  .cmp-head{break-inside:avoid;page-break-inside:avoid}
-  .sec{break-after:avoid;page-break-after:avoid}
-  /* 圖表容器與canvas強制不超過內容寬度 */
-  .cc-body{padding:10px!important}
+  .main{max-width:196mm!important;width:196mm!important;padding:0!important;margin:0!important}
+  .selector-bar{box-shadow:none;border:1px solid #ccc;padding:8px 12px!important;margin-bottom:8px!important}
+  /* 縮小區塊標題間距 */
+  .sec{margin:8px 0 6px!important;break-after:avoid;page-break-after:avoid}
+  /* KPI 緊湊 */
+  .stat-row{gap:6px;margin-bottom:8px!important}
+  .stat{padding:8px 12px!important;break-inside:avoid}
+  .stat-val{font-size:19px!important}
+  .stat-lbl{font-size:9px!important;margin-bottom:3px!important}
+  /* 圖表壓縮高度 */
+  .cc{margin-bottom:8px!important;break-inside:avoid;page-break-inside:avoid}
+  .cc-hdr{padding:8px 12px!important}
+  .cc-body{padding:8px!important}
   .cc-body canvas{max-width:100%!important;height:auto!important}
-  .ch300{height:210px!important}
-  /* KPI改3欄較緊湊 */
-  .stat-row{gap:8px}
-  .stat-val{font-size:22px}
+  .ch300{height:170px!important}
+  /* 比較卡片不被切 */
+  .cmp-wrap,.cmp-body,.cmp-head{break-inside:avoid;page-break-inside:avoid}
+  .cmp-head-eff{font-size:20px!important}
+  .cmp-cell{padding:7px 12px!important}
+  .cmp-summary{padding:8px 12px!important}
   /* 明細表字體縮小確保完整 */
-  .btbl{font-size:10px}
-  .btbl th,.btbl td{padding:6px 7px}
+  .btbl{font-size:9px}
+  .btbl th,.btbl td{padding:5px 6px}
+  /* 第1頁分頁點：品種+KPI+堆疊圖+比較之後換頁 */
+  .print-break{display:block!important;break-before:page;page-break-before:always;height:0}
   /* 顏色完整印出 */
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
 }
@@ -224,6 +235,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
   <!-- 最佳/最差批三欄比較 -->
   <div class="sec"><div class="sec-lbl">最佳批 vs 最差批</div></div>
   <div class="cmp-wrap" id="cmp-wrap"></div>
+
+  <!-- 列印分頁點：第1頁結束（品種+KPI+堆疊圖+比較）-->
+  <div class="print-break"></div>
 
   <!-- 步留率趨勢 -->
   <div class="sec"><div class="sec-lbl">步留率趨勢</div></div>
@@ -349,6 +363,11 @@ Chart.defaults.color='#6b8f71';
 Chart.defaults.borderColor='rgba(212,232,214,.6)';
 Chart.defaults.font.family="'JetBrains Mono','Noto Sans TC',sans-serif";
 Chart.defaults.font.size=12;
+
+// 註冊 datalabels 外掛，但預設全域關閉（只在列印時由 PRINT_MODE 開啟）
+if(window.ChartDataLabels){Chart.register(window.ChartDataLabels);}
+Chart.defaults.plugins.datalabels={display:false};
+var PRINT_MODE=false; // 列印時設 true，圖表才顯示數值標籤
 
 document.addEventListener('DOMContentLoaded',loadData);
 
@@ -555,7 +574,10 @@ function renderBreakdown(rows){
     responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
-        callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';}}}},
+        callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';}}},
+      datalabels:{display:function(){return PRINT_MODE;},color:'#fff',
+        font:{weight:'700',size:10},
+        formatter:function(v){return(v&&v>=4)?v.toFixed(1)+'%':'';}}},
     scales:{
       x:{stacked:true,ticks:{maxRotation:45}},
       y:{stacked:true,max:110,title:{display:true,text:'%'},
@@ -580,7 +602,10 @@ function renderStacked(rows){
     responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
-        callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';}}}},
+        callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';}}},
+      datalabels:{display:function(){return PRINT_MODE;},color:'#fff',
+        font:{weight:'700',size:11},
+        formatter:function(v){return v>=3?v.toFixed(1)+'%':'';}}},
     scales:{
       x:{stacked:true,ticks:{maxRotation:45}},
       y:{stacked:true,min:0,max:110,title:{display:true,text:'%'},
@@ -667,6 +692,9 @@ function renderYr(rows){
       legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
         callbacks:{label:function(c){return '步留率: '+(c.parsed.y?c.parsed.y.toFixed(1)+'%':'無資料');}}},
+      datalabels:{display:function(){return PRINT_MODE;},align:'top',anchor:'end',
+        color:'#15803d',font:{weight:'700',size:11},
+        formatter:function(v){return v?v.toFixed(1)+'%':'';}},
       annotation:{annotations:{avgLine:{
         type:'line',yMin:avgYr,yMax:avgYr,
         borderColor:'#94a3b8',borderDash:[5,4],borderWidth:2,
@@ -701,6 +729,9 @@ function renderDr(rows){
       legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
         callbacks:{label:function(c){return '不良品率: '+(c.parsed.y?c.parsed.y.toFixed(1)+'%':'無資料');}}},
+      datalabels:{display:function(){return PRINT_MODE;},align:'top',anchor:'end',
+        color:'#dc2626',font:{weight:'700',size:11},
+        formatter:function(v){return v?v.toFixed(1)+'%':'';}},
       annotation:{annotations:{avgLine:{
         type:'line',yMin:avgDr,yMax:avgDr,
         borderColor:'#94a3b8',borderDash:[5,4],borderWidth:2,
@@ -779,6 +810,9 @@ function renderEff(rows){
       legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
         callbacks:{label:function(c){return '效率: '+(c.parsed.y?c.parsed.y.toFixed(2)+' KG/人時':'無工時記錄');}}},
+      datalabels:{display:function(){return PRINT_MODE;},align:'top',anchor:'end',
+        color:'#1a2e1e',font:{weight:'700',size:11},
+        formatter:function(v){return v?v.toFixed(2):'';}},
       annotation:{annotations:{avgLine:{
         type:'line',yMin:avgE,yMax:avgE,
         borderColor:'#94a3b8',borderDash:[5,4],borderWidth:2,
@@ -809,23 +843,23 @@ function exportPDF(){
   var origTitle=document.title;
   document.title='五惠「'+(SEL_FRUIT||'全部')+'」原料處理_'+dateStr;
 
-  // 列印前：讓所有 Chart.js 圖表重新 resize 以適配 A4 列印寬度
-  function resizeCharts(){
-    Object.keys(CH).forEach(function(k){if(CH[k])CH[k].resize();});
+  // 列印前：開啟數值標籤 + resize 圖表以適配 A4 列印寬度
+  function applyPrintCharts(on){
+    PRINT_MODE=on;
+    Object.keys(CH).forEach(function(k){if(CH[k]){CH[k].update();CH[k].resize();}});
   }
-  // 監聽列印前後事件，確保圖表尺寸正確
-  var beforeH=function(){setTimeout(resizeCharts,10);};
+  var beforeH=function(){setTimeout(function(){applyPrintCharts(true);},10);};
   var afterH=function(){
-    setTimeout(function(){resizeCharts();document.title=origTitle;},50);
+    setTimeout(function(){applyPrintCharts(false);document.title=origTitle;},50);
     window.removeEventListener('beforeprint',beforeH);
     window.removeEventListener('afterprint',afterH);
   };
   window.addEventListener('beforeprint',beforeH);
   window.addEventListener('afterprint',afterH);
 
-  // 先觸發一次resize讓圖表縮小，稍等再列印
-  resizeCharts();
-  setTimeout(function(){window.print();},350);
+  // 先開啟數值標籤+resize，稍等渲染完成再列印
+  applyPrintCharts(true);
+  setTimeout(function(){window.print();},400);
 }
 </script>
 </body>
