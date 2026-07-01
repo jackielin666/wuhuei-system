@@ -1187,7 +1187,7 @@ function renderRecs(){
       '<td style="font-size:14px;white-space:nowrap">'+fmtDate(r['作業日期'])+'</td>'+
       '<td>'+mkTag(r['品種'])+'</td>'+
       '<td style="font-size:13px;white-space:nowrap">'+(r['作業類型']||'-')+'</td>'+
-      '<td style="font-size:13px">'+(r['作業地點']||'-')+'</td>'+
+      '<td style="font-size:13px;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis" title="'+(r['作業地點']||'')+'">'+(r['作業地點']||'-')+'</td>'+
       '<td style="font-family:JetBrains Mono,monospace;font-size:14px;text-align:right">'+(raw>0?raw.toLocaleString():'-')+'</td>'+
       '<td><span class="badge '+yC+'">'+y.toFixed(1)+'%</span></td>'+
       '<td><span class="badge br">'+dr.toFixed(1)+'%</span></td>'+

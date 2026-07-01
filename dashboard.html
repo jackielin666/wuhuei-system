@@ -74,18 +74,29 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 .stat-unit{font-size:11px;color:var(--ink3);margin-top:4px}
 @media(max-width:600px){.stat-lbl{font-size:9px}.stat-val{font-size:18px}.stat{padding:10px 12px}}
 
-/* 三欄比較表 */
-.cmp-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
+/* 對比卡片式比較 */
+.cmp-wrap{margin-bottom:20px}
+.cmp-head{display:grid;grid-template-columns:130px 1fr 1fr;gap:0;margin-bottom:0}
+.cmp-head-key{}
+.cmp-head-card{padding:16px;text-align:center;border-radius:var(--r2) var(--r2) 0 0;position:relative}
+.cmp-head-best{background:linear-gradient(135deg,#40916c,#2d6a4f);color:#fff;margin-right:6px}
+.cmp-head-worst{background:linear-gradient(135deg,#e76f51,#dc2626);color:#fff;margin-left:6px}
+.cmp-head-title{font-size:15px;font-weight:700;margin-bottom:3px}
+.cmp-head-op{font-size:12px;opacity:.9}
+.cmp-head-eff{font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:8px;line-height:1}
+.cmp-head-eff-unit{font-size:11px;opacity:.85;margin-top:2px}
+.cmp-body{background:var(--card);border:1px solid var(--line);border-top:none;border-radius:0 0 var(--r2) var(--r2);overflow:hidden;box-shadow:var(--shadow)}
 .cmp-tbl{display:grid;grid-template-columns:130px 1fr 1fr}
-.cmp-th{padding:12px 16px;font-size:12px;font-weight:700;letter-spacing:.5px}
-.cmp-th-key{background:var(--bg2);color:var(--ink3)}
-.cmp-th-best{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:var(--green-m);text-align:center}
-.cmp-th-worst{background:linear-gradient(135deg,#fff5f5,#fee2e2);color:var(--red-m);text-align:center}
-.cmp-cell{padding:10px 16px;border-top:1px solid var(--line);font-size:13px;display:flex;align-items:center}
+.cmp-cell{padding:11px 16px;border-top:1px solid var(--line);font-size:13px;display:flex;align-items:center}
 .cmp-cell-key{background:var(--bg2);color:var(--ink3);font-size:12px;font-weight:500}
-.cmp-cell-best{background:#fafffe;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600}
-.cmp-cell-worst{background:#fffafa;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600}
-@media(max-width:600px){.cmp-tbl{grid-template-columns:90px 1fr 1fr}.cmp-th,.cmp-cell{padding:8px 10px;font-size:11px}}
+.cmp-cell-best{justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600}
+.cmp-cell-worst{justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600}
+.cmp-summary{grid-column:1/-1;padding:12px 16px;background:var(--bg2);font-size:12px;color:var(--ink3);border-top:1px solid var(--line);line-height:1.5}
+@media(max-width:600px){
+  .cmp-head,.cmp-tbl{grid-template-columns:80px 1fr 1fr}
+  .cmp-head-card{padding:10px}.cmp-head-title{font-size:13px}.cmp-head-eff{font-size:19px}
+  .cmp-cell{padding:8px 10px;font-size:11px}
+}
 
 /* BREAKDOWN */
 .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
@@ -248,7 +259,7 @@ var MULTI_OUT={
   '橘子-剝橘子（玻璃瓶）':{
     title:'橘子剝橘子 — 產出結構',
     parts:[
-      {key:'flesh',label:'切片果肉',col:'#f97316'},
+      {key:'flesh',label:'果肉含籽',col:'#f97316'},
       {key:'skin',label:'橘子皮',col:'#f4a261'},
       {key:'juice',label:'果汁',col:'#fbbf24'},
       {key:'def',label:'不良品',col:'#dc2626'},
@@ -527,15 +538,14 @@ function renderBreakdown(rows){
 // 三段堆疊圖（X軸=日期）
 function renderStacked(rows){
   var labels=rows.map(function(r){return r.date;});
-  var fc=FC[SEL_FRUIT]||{col:'#2d6a4f'};
   var datasets=[
     {label:'步留率',data:rows.map(function(r){return parseFloat(r.yr.toFixed(1))||0;}),
-      backgroundColor:fc.col+'cc',borderColor:fc.col,borderWidth:1},
+      backgroundColor:'rgba(21,128,61,.75)',borderColor:'#15803d',borderWidth:1},
     {label:'作業耗損率',data:rows.map(function(r){
       return parseFloat(Math.max(r.lr>0?r.lr:100-r.yr-r.dr,0).toFixed(1));
-    }),backgroundColor:'rgba(116,140,171,.55)',borderColor:'#748cab',borderWidth:1},
+    }),backgroundColor:'rgba(148,163,184,.65)',borderColor:'#64748b',borderWidth:1},
     {label:'不良品率',data:rows.map(function(r){return parseFloat(r.dr.toFixed(1))||0;}),
-      backgroundColor:'rgba(220,38,38,.65)',borderColor:'#dc2626',borderWidth:1}
+      backgroundColor:'rgba(220,38,38,.7)',borderColor:'#dc2626',borderWidth:1}
   ];
   mk('chart-stacked',{type:'bar',data:{labels:labels,datasets:datasets},options:{
     responsive:true,maintainAspectRatio:false,
@@ -559,31 +569,55 @@ function renderCompare(rows){
   }
   var sorted=effRows.slice().sort(function(a,b){return b.eff-a.eff;});
   var best=sorted[0],worst=sorted[sorted.length-1];
+
+  // 原料資訊摘要（優先用備註，否則組合原料狀況資訊）
+  function summary(r){
+    if(r.notes&&r.notes.trim())return r.notes.trim();
+    return '投入 '+r.raw.toLocaleString()+'KG，步留率 '+r.yr.toFixed(1)+'%';
+  }
+
+  // 明細列（不含批次、日期已移到卡片標題區）
   var fields=[
-    {lbl:'批次',fn:function(r){return r.id;}},
     {lbl:'日期',fn:function(r){return r.date;}},
     {lbl:'投入量',fn:function(r){return r.raw.toLocaleString()+' KG';}},
     {lbl:'步留率',fn:function(r,isBest){
       return'<span style="color:'+(isBest?'var(--green-m)':'var(--red-m)')+'">'+r.yr.toFixed(1)+'%</span>';}},
     {lbl:'不良品率',fn:function(r){return r.dr.toFixed(1)+'%';}},
-    {lbl:'耗損率',fn:function(r){var lr=r.lr>0?r.lr:Math.max(100-r.yr-r.dr,0);return lr.toFixed(1)+'%';}},
-    {lbl:'效率',fn:function(r,isBest){
-      return'<span style="color:'+(isBest?'var(--green-m)':'var(--red-m)')+'">'+r.eff.toFixed(2)+' KG/人時</span>';}}
+    {lbl:'耗損率',fn:function(r){var lr=r.lr>0?r.lr:Math.max(100-r.yr-r.dr,0);return lr.toFixed(1)+'%';}}
   ];
 
-  var html='<div class="cmp-tbl">';
-  // 標題列
-  html+='<div class="cmp-th cmp-th-key"></div>';
-  html+='<div class="cmp-th cmp-th-best">🏆 最佳批</div>';
-  html+='<div class="cmp-th cmp-th-worst">⚠️ 最差批</div>';
-  // 資料列
+  var opName=SEL_OP||'';
+  // 頂部卡片標題區（含作業類型 + 效率大字）
+  var head='<div class="cmp-head">'+
+    '<div class="cmp-head-key"></div>'+
+    '<div class="cmp-head-card cmp-head-best">'+
+      '<div class="cmp-head-title">🏆 最佳批</div>'+
+      '<div class="cmp-head-op">'+opName+'</div>'+
+      '<div class="cmp-head-eff">'+best.eff.toFixed(2)+'</div>'+
+      '<div class="cmp-head-eff-unit">KG/人時</div>'+
+    '</div>'+
+    '<div class="cmp-head-card cmp-head-worst">'+
+      '<div class="cmp-head-title">⚠️ 最差批</div>'+
+      '<div class="cmp-head-op">'+opName+'</div>'+
+      '<div class="cmp-head-eff">'+worst.eff.toFixed(2)+'</div>'+
+      '<div class="cmp-head-eff-unit">KG/人時</div>'+
+    '</div>'+
+  '</div>';
+
+  // 明細表格
+  var body='<div class="cmp-body"><div class="cmp-tbl">';
   fields.forEach(function(f){
-    html+='<div class="cmp-cell cmp-cell-key">'+f.lbl+'</div>';
-    html+='<div class="cmp-cell cmp-cell-best">'+f.fn(best,true)+'</div>';
-    html+='<div class="cmp-cell cmp-cell-worst">'+f.fn(worst,false)+'</div>';
+    body+='<div class="cmp-cell cmp-cell-key">'+f.lbl+'</div>';
+    body+='<div class="cmp-cell cmp-cell-best">'+f.fn(best,true)+'</div>';
+    body+='<div class="cmp-cell cmp-cell-worst">'+f.fn(worst,false)+'</div>';
   });
-  html+='</div>';
-  document.getElementById('cmp-wrap').innerHTML=html;
+  body+='</div>';
+  // 原料資訊摘要
+  body+='<div class="cmp-summary">📋 最佳批：'+summary(best)+'</div>';
+  body+='<div class="cmp-summary">📋 最差批：'+summary(worst)+'</div>';
+  body+='</div>';
+
+  document.getElementById('cmp-wrap').innerHTML=head+body;
 }
 
 // 步留率折線+填色（annotation平均線，X軸=日期，Y軸整數）
@@ -667,15 +701,19 @@ function renderTable(rows){
     var isWorst=effRows.length>1&&r.eff>0&&r.eff===worstEff;
     var yrCls=r.yr>=(avgYr+1)?'bg':r.yr>=(avgYr-3)?'bp':'br';
     var lr=r.lr>0?r.lr:Math.max(100-r.yr-r.dr,0);
+    // 耗損KG：原料 - 主產出 - 副產出 - 不良品（多產出品種扣除副產出）
+    var subKg=(parseFloat(r.sub1)||0)+(parseFloat(r.sub2)||0);
+    var lossKg=Math.max(r.raw-r.out-subKg-r.def,0);
     return'<tr class="'+(isBest?'best':isWorst?'worst':'')+'">'+
       '<td style="font-size:16px">'+(isBest?'🏆':isWorst?'⚠️':'')+'</td>'+
       '<td style="white-space:nowrap;font-size:12px">'+r.date+'</td>'+
       '<td style="text-align:right">'+r.raw.toLocaleString()+'</td>'+
       '<td style="text-align:right">'+r.out.toLocaleString()+'</td>'+
+      '<td style="text-align:right">'+r.def+'</td>'+
+      '<td style="text-align:right">'+lossKg.toFixed(0)+'</td>'+
       '<td><span class="badge '+yrCls+'">'+r.yr.toFixed(1)+'%</span></td>'+
       '<td><span class="badge '+(r.dr>(avgYr>50?10:5)?'br':'by')+'">'+r.dr.toFixed(1)+'%</span></td>'+
       '<td><span class="badge by">'+lr.toFixed(1)+'%</span></td>'+
-      '<td style="text-align:right">'+r.def+'</td>'+
       '<td style="text-align:center">'+(r.workers||'-')+'</td>'+
       '<td style="text-align:center">'+(r.mh||'-')+'</td>'+
       '<td style="font-weight:700;text-align:right;color:'+(r.eff>0?(isBest?'var(--green-m)':isWorst?'var(--red-m)':'var(--ink)'):'var(--ink4)')+'">'+
@@ -688,8 +726,8 @@ function renderTable(rows){
     '<table class="btbl"><thead><tr>'+
     '<th></th><th>日期</th>'+
     '<th style="text-align:right">投入KG</th><th style="text-align:right">主產出KG</th>'+
+    '<th style="text-align:right">不良品KG</th><th style="text-align:right">耗損KG</th>'+
     '<th>步留率</th><th>不良品率</th><th>耗損率</th>'+
-    '<th style="text-align:right">不良品KG</th>'+
     '<th style="text-align:center">人數</th><th style="text-align:center">工時hr</th>'+
     '<th style="text-align:right">效率KG/人時</th>'+
     '<th class="hide-mobile">備註</th>'+
