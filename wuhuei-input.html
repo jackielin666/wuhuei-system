@@ -1335,9 +1335,13 @@ function saveEdit(){
     notes:document.getElementById('ed-note').value};
   // 取得目前選擇的操作人員（編輯時更新資料來源）
   var editOperator=getOperatorValue().trim()||'';
+  // 從 CUR 帶回編輯視窗沒有的欄位（品種/作業/副產出），避免被清空
   var apiUpdateData={
     batchId:d.batchId, date:d.date, location:d.loc, supplier:d.supplier,
-    raw:d.rawkg, main:d.totalOut, sub1:0, sub2:0, defect:d.defect,
+    species:CUR['品種']||'', opType:CUR['作業類型']||'',
+    raw:d.rawkg, main:d.totalOut,
+    sub1:parseFloat(CUR['副產出1 KG'])||0, sub2:parseFloat(CUR['副產出2 KG'])||0,
+    defect:d.defect,
     workers:d.workers, hours:d.grandMH,
     condition:d.condition, hardness:d.texture, notes:d.notes,
     operator:editOperator
