@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --primary:#2d6a4f;--primary-m:#40916c;--primary-l:#d8f3dc;--primary-b:#95d5b2;
@@ -151,6 +153,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
   <div class="topnav">
     <a href="wuhuei-input.html" class="tnav">📥 資料輸入</a>
     <a href="dashboard.html" class="tnav on">📊 分析儀表板</a>
+    <button class="tnav" id="btn-pdf" onclick="exportPDF()" style="cursor:pointer">📄 匯出PDF</button>
   </div>
   <div class="live-pill"><div class="live-dot"></div><span id="upd-txt">載入中...</span></div>
 </div>
@@ -771,6 +774,66 @@ function mk(id,cfg){
   if(CH[id]){CH[id].destroy();delete CH[id];}
   var ctx=document.getElementById(id);if(!ctx)return;
   CH[id]=new Chart(ctx,cfg);
+}
+
+// ── 一鍵匯出 PDF（整個 Dashboard，直式 A4）──
+function exportPDF(){
+  var btn=document.getElementById('btn-pdf');
+  var old=btn.textContent;
+  btn.textContent='⏳ 產生中...';btn.disabled=true;
+
+  var target=document.querySelector('.main');
+  // 檔名：五惠「水果名」原料處理_日期.pdf
+  var d=new Date();
+  var dateStr=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  var fname='五惠「'+(SEL_FRUIT||'全部')+'」原料處理_'+dateStr+'.pdf';
+
+  html2canvas(target,{
+    scale:2, useCORS:true, backgroundColor:'#f5f9f5', logging:false,
+    windowWidth:target.scrollWidth, windowHeight:target.scrollHeight
+  }).then(function(canvas){
+    var jsPDF=window.jspdf.jsPDF;
+    var pdf=new jsPDF('p','mm','a4');
+    var pw=pdf.internal.pageSize.getWidth();   // 210mm
+    var ph=pdf.internal.pageSize.getHeight();  // 297mm
+    var margin=8;
+    var imgW=pw-margin*2;
+    var imgH=canvas.height*imgW/canvas.width;
+
+    var img=canvas.toDataURL('image/jpeg',0.92);
+
+    // 內容過長時自動分頁
+    if(imgH<=ph-margin*2){
+      pdf.addImage(img,'JPEG',margin,margin,imgW,imgH);
+    }else{
+      var pageContentH=ph-margin*2;
+      var totalH=imgH;
+      var rendered=0;
+      var pageCanvas=document.createElement('canvas');
+      var ratio=canvas.width/imgW; // px per mm
+      var pageContentPx=pageContentH*ratio;
+      var pageNo=0;
+      while(rendered<canvas.height){
+        var sliceH=Math.min(pageContentPx,canvas.height-rendered);
+        pageCanvas.width=canvas.width;
+        pageCanvas.height=sliceH;
+        var ctx=pageCanvas.getContext('2d');
+        ctx.fillStyle='#f5f9f5';ctx.fillRect(0,0,pageCanvas.width,sliceH);
+        ctx.drawImage(canvas,0,rendered,canvas.width,sliceH,0,0,canvas.width,sliceH);
+        var pImg=pageCanvas.toDataURL('image/jpeg',0.92);
+        var pImgH=sliceH/ratio;
+        if(pageNo>0)pdf.addPage();
+        pdf.addImage(pImg,'JPEG',margin,margin,imgW,pImgH);
+        rendered+=sliceH;pageNo++;
+      }
+    }
+
+    pdf.save(fname);
+    btn.textContent=old;btn.disabled=false;
+  }).catch(function(err){
+    alert('匯出失敗：'+err.message);
+    btn.textContent=old;btn.disabled=false;
+  });
 }
 </script>
 </body>
