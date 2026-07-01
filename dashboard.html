@@ -7,8 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --primary:#2d6a4f;--primary-m:#40916c;--primary-l:#d8f3dc;--primary-b:#95d5b2;
@@ -141,6 +139,24 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 .sec-lbl{font-size:11px;font-weight:700;color:var(--primary-m);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;white-space:nowrap}
 .hidden{display:none!important}
 .empty{text-align:center;padding:60px;color:var(--ink4)}
+
+/* ── 列印專用（匯出PDF）── */
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  body{background:#fff!important;font-size:12px}
+  .topbar{position:static!important;box-shadow:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .topnav,.live-pill,#btn-pdf{display:none!important}
+  .main{max-width:100%!important;padding:0!important}
+  .selector-bar{box-shadow:none;border:1px solid #ccc}
+  /* 圖表卡片避免跨頁被切斷 */
+  .cc,.cmp-wrap,.stat,.selector-bar{break-inside:avoid;page-break-inside:avoid}
+  .sec{break-after:avoid;page-break-after:avoid}
+  /* 確保背景色與圖表顏色印出來 */
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .stat,.cc,.cmp-head-best,.cmp-head-worst,.badge{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  /* 圖表高度稍微壓縮，一頁容納更多 */
+  .ch300{height:240px!important}
+}
 </style>
 </head>
 <body>
@@ -776,87 +792,17 @@ function mk(id,cfg){
   CH[id]=new Chart(ctx,cfg);
 }
 
-// ── 一鍵匯出 PDF（整個 Dashboard，直式 A4）──
+// ── 一鍵匯出 PDF（改用瀏覽器原生列印，最穩定，格式不跑掉）──
 function exportPDF(){
-  var btn=document.getElementById('btn-pdf');
-  var old=btn.textContent;
-  btn.textContent='⏳ 產生中...';btn.disabled=true;
-
-  var target=document.querySelector('.main');
-  // 檔名：五惠「水果名」原料處理_日期.pdf
+  // 設定列印檔名（瀏覽器另存PDF時的預設檔名）
   var d=new Date();
   var dateStr=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
-  var fname='五惠「'+(SEL_FRUIT||'全部')+'」原料處理_'+dateStr+'.pdf';
-
-  // 匯出前：把所有寬高為0或隱藏section內的canvas暫時設為不顯示，避免html2canvas報錯
-  var hiddenEls=[];
-  document.querySelectorAll('.main canvas').forEach(function(cv){
-    if(cv.offsetWidth===0||cv.offsetHeight===0){
-      var wrap=cv.closest('.cc')||cv.parentElement;
-      if(wrap&&wrap.style.display!=='none'){
-        hiddenEls.push({el:wrap,prev:wrap.style.display});
-        wrap.style.display='none';
-      }
-    }
-  });
-  function restoreEls(){hiddenEls.forEach(function(h){h.el.style.display=h.prev;});}
-
-  html2canvas(target,{
-    scale:2, useCORS:true, backgroundColor:'#f5f9f5', logging:false,
-    windowWidth:target.scrollWidth, windowHeight:target.scrollHeight,
-    ignoreElements:function(el){
-      // 忽略隱藏元素（display:none 或寬高為0的canvas），避免 createPattern 錯誤
-      if(el.classList&&el.classList.contains('hidden'))return true;
-      if(el.tagName==='CANVAS'&&(el.offsetWidth===0||el.offsetHeight===0))return true;
-      var st=window.getComputedStyle(el);
-      if(st.display==='none'||st.visibility==='hidden')return true;
-      return false;
-    }
-  }).then(function(canvas){
-    var jsPDF=window.jspdf.jsPDF;
-    var pdf=new jsPDF('p','mm','a4');
-    var pw=pdf.internal.pageSize.getWidth();   // 210mm
-    var ph=pdf.internal.pageSize.getHeight();  // 297mm
-    var margin=8;
-    var imgW=pw-margin*2;
-    var imgH=canvas.height*imgW/canvas.width;
-
-    var img=canvas.toDataURL('image/jpeg',0.92);
-
-    // 內容過長時自動分頁
-    if(imgH<=ph-margin*2){
-      pdf.addImage(img,'JPEG',margin,margin,imgW,imgH);
-    }else{
-      var pageContentH=ph-margin*2;
-      var totalH=imgH;
-      var rendered=0;
-      var pageCanvas=document.createElement('canvas');
-      var ratio=canvas.width/imgW; // px per mm
-      var pageContentPx=pageContentH*ratio;
-      var pageNo=0;
-      while(rendered<canvas.height){
-        var sliceH=Math.min(pageContentPx,canvas.height-rendered);
-        pageCanvas.width=canvas.width;
-        pageCanvas.height=sliceH;
-        var ctx=pageCanvas.getContext('2d');
-        ctx.fillStyle='#f5f9f5';ctx.fillRect(0,0,pageCanvas.width,sliceH);
-        ctx.drawImage(canvas,0,rendered,canvas.width,sliceH,0,0,canvas.width,sliceH);
-        var pImg=pageCanvas.toDataURL('image/jpeg',0.92);
-        var pImgH=sliceH/ratio;
-        if(pageNo>0)pdf.addPage();
-        pdf.addImage(pImg,'JPEG',margin,margin,imgW,pImgH);
-        rendered+=sliceH;pageNo++;
-      }
-    }
-
-    pdf.save(fname);
-    restoreEls();
-    btn.textContent=old;btn.disabled=false;
-  }).catch(function(err){
-    restoreEls();
-    alert('匯出失敗：'+err.message);
-    btn.textContent=old;btn.disabled=false;
-  });
+  var origTitle=document.title;
+  document.title='五惠「'+(SEL_FRUIT||'全部')+'」原料處理_'+dateStr;
+  // 觸發列印
+  window.print();
+  // 還原標題
+  setTimeout(function(){document.title=origTitle;},500);
 }
 </script>
 </body>
