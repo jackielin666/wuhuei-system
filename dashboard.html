@@ -143,8 +143,13 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 .hidden{display:none!important}
 .empty{text-align:center;padding:60px;color:var(--ink4)}
 
-/* ── 列印專用（匯出PDF）── */
-.print-footer{display:none}
+/* ── 頁尾（螢幕版顯示在最底部，列印版固定每頁）── */
+.print-footer{display:flex;justify-content:space-between;align-items:center;
+  max-width:1400px;margin:0 auto 20px;padding:12px 20px;
+  border-top:1.5px solid var(--primary);
+  font-size:12px;color:var(--ink3);
+  font-family:'JetBrains Mono','Noto Sans TC',sans-serif}
+.print-footer .pf-left{color:var(--primary);font-weight:700}
 @media print{
   @page{size:A4 portrait;margin:7mm}
   html,body{background:#fff!important;width:196mm!important}
@@ -180,15 +185,16 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
   /* 固定頁尾：每頁底部顯示 */
   .print-footer{display:flex!important;position:fixed;bottom:0;left:0;right:0;
     justify-content:space-between;align-items:center;
-    padding:4px 6px;border-top:1px solid #ccc;
-    font-size:8px;color:#666;font-family:'JetBrains Mono','Noto Sans TC',sans-serif;
-    background:#fff}
-  .pf-left{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pf-right{white-space:nowrap;padding-left:8px}
+    padding:5px 8px;border-top:1.5px solid #2d6a4f;
+    font-size:9px;color:#1a2e1e;font-weight:500;
+    font-family:'JetBrains Mono','Noto Sans TC',sans-serif;
+    background:#fff;z-index:9999}
+  .pf-left{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#2d6a4f;font-weight:700}
+  .pf-right{white-space:nowrap;padding-left:8px;color:#1a2e1e}
   /* 頁碼（CSS counter）*/
-  .pf-right::after{content:"　第 " counter(page) " / " counter(pages) " 頁"}
+  .pf-right::after{content:"　｜　第 " counter(page) " / " counter(pages) " 頁"}
   /* 內容底部留空間給頁尾 */
-  body{margin-bottom:14mm}
+  body{margin-bottom:16mm}
 }
 </style>
 </head>
@@ -395,13 +401,33 @@ function loadData(){
     var bi=BUILTIN.filter(function(b){return sids.indexOf(b.id)<0;});
     ALL=bi.concat(sheets.map(cvtSheet));
     document.getElementById('upd-txt').textContent='更新：'+new Date().toLocaleTimeString('zh-TW');
+    updateFooter();
     initFruits();
   })
   .catch(function(){
     ALL=BUILTIN.slice();
     document.getElementById('upd-txt').textContent='離線（內建資料）';
+    updateFooter();
     initFruits();
   });
+}
+
+// 更新頁尾：最新一筆的更新人員 + 列印日期
+function updateFooter(){
+  var latestUpdater='—';
+  var withSource=ALL.filter(function(r){return r.source;});
+  if(withSource.length){
+    var sorted=withSource.slice().sort(function(a,b){
+      var da=(a.source.match(/\d{4}-\d{2}-\d{2}/)||[''])[0];
+      var db=(b.source.match(/\d{4}-\d{2}-\d{2}/)||[''])[0];
+      return db.localeCompare(da);
+    });
+    latestUpdater=sorted[0].source.replace(/\s*\d{4}-\d{2}-\d{2}.*$/,'').trim()||sorted[0].source;
+  }
+  var pu=document.getElementById('pf-updater');if(pu)pu.textContent=latestUpdater;
+  var d=new Date();
+  var pd=document.getElementById('pf-date');
+  if(pd)pd.textContent='列印日期：'+d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
 }
 
 function cvtSheet(r){
@@ -859,20 +885,8 @@ function exportPDF(){
   var origTitle=document.title;
   document.title='五惠「'+(SEL_FRUIT||'全部')+'」原料處理_'+dateStr;
 
-  // 頁尾：代入最新一筆的更新人員 + 列印日期
-  var latestUpdater='—';
-  var withSource=ALL.filter(function(r){return r.source;});
-  if(withSource.length){
-    // 資料來源格式「姓名 YYYY-MM-DD」，取最新一筆的姓名
-    var sorted=withSource.slice().sort(function(a,b){
-      var da=(a.source.match(/\d{4}-\d{2}-\d{2}/)||[''])[0];
-      var db=(b.source.match(/\d{4}-\d{2}-\d{2}/)||[''])[0];
-      return db.localeCompare(da);
-    });
-    latestUpdater=sorted[0].source.replace(/\s*\d{4}-\d{2}-\d{2}.*$/,'').trim()||sorted[0].source;
-  }
-  document.getElementById('pf-updater').textContent=latestUpdater;
-  document.getElementById('pf-date').textContent='列印日期：'+d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
+  // 頁尾：代入最新更新人員 + 列印日期
+  updateFooter();
 
   // 列印前：開啟數值標籤 + resize 圖表以適配 A4 列印寬度
   function applyPrintCharts(on){
