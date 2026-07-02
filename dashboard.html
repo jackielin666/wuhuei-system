@@ -78,7 +78,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 /* 對比卡片式比較 */
 .cmp-wrap{margin-bottom:20px}
 .cmp-head{display:grid;grid-template-columns:130px 1fr 1fr;gap:0;margin-bottom:0}
-.cmp-head-key{}
+.cmp-head-key{background:var(--bg2);border-radius:var(--r2) 0 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px}
+.cmp-head-key-title{font-size:13px;font-weight:700;color:var(--ink2);text-align:center;line-height:1.3}
+.cmp-head-key-sub{font-size:10px;color:var(--ink4);margin-top:3px;font-family:'JetBrains Mono',monospace}
 .cmp-head-card{padding:16px;text-align:center;border-radius:var(--r2) var(--r2) 0 0;position:relative}
 .cmp-head-best{background:linear-gradient(135deg,#40916c,#2d6a4f);color:#fff;margin-right:6px}
 .cmp-head-worst{background:linear-gradient(135deg,#e76f51,#dc2626);color:#fff;margin-left:6px}
@@ -152,14 +154,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
   .main{max-width:196mm!important;width:196mm!important;padding:0!important;margin:0!important}
   .selector-bar{box-shadow:none;border:1px solid #ccc;padding:8px 12px!important;margin-bottom:8px!important}
   /* 縮小區塊標題間距 */
-  .sec{margin:8px 0 6px!important;break-after:avoid;page-break-after:avoid}
+  .sec{margin:14px 0 8px!important;break-after:avoid;page-break-after:avoid}
   /* KPI 緊湊 */
   .stat-row{gap:6px;margin-bottom:8px!important}
   .stat{padding:8px 12px!important;break-inside:avoid}
   .stat-val{font-size:19px!important}
   .stat-lbl{font-size:9px!important;margin-bottom:3px!important}
   /* 圖表壓縮高度 */
-  .cc{margin-bottom:8px!important;break-inside:avoid;page-break-inside:avoid}
+  .cc{margin-bottom:14px!important;break-inside:avoid;page-break-inside:avoid}
   .cc-hdr{padding:8px 12px!important}
   .cc-body{padding:8px!important}
   .cc-body canvas{max-width:100%!important;height:auto!important}
@@ -637,7 +639,7 @@ function renderCompare(rows){
   var opName=SEL_OP||'';
   // 頂部卡片標題區（含作業類型 + 效率大字）
   var head='<div class="cmp-head">'+
-    '<div class="cmp-head-key"></div>'+
+    '<div class="cmp-head-key"><div class="cmp-head-key-title">批次比較</div><div class="cmp-head-key-sub">效率對照</div></div>'+
     '<div class="cmp-head-card cmp-head-best">'+
       '<div class="cmp-head-title">🏆 最佳批</div>'+
       '<div class="cmp-head-op">'+opName+'</div>'+
@@ -796,16 +798,18 @@ function renderEff(rows){
   var avgE=valid.length?avg(valid):0;
   var fc=FC[SEL_FRUIT]||{col:'#2d6a4f'};
   document.getElementById('eff-avg-lbl').textContent='平均 '+avgE.toFixed(2)+' KG/人時';
-  var bgCols=rows.map(function(r){return r.eff>0?(r.eff>=avgE?fc.col+'cc':'rgba(220,38,38,.7)'):'rgba(148,163,184,.3)';});
-  mk('chart-eff',{type:'bar',data:{labels:labels,datasets:[
-    {label:'效率 KG/人時',data:effs,backgroundColor:bgCols,borderColor:bgCols,borderWidth:1.5,borderRadius:5}
+  mk('chart-eff',{type:'line',data:{labels:labels,datasets:[
+    {label:'效率 KG/人時',data:effs,borderColor:'#0d6e8a',backgroundColor:'rgba(33,158,188,.15)',fill:true,
+      tension:0.4,pointRadius:7,pointHoverRadius:10,
+      pointBackgroundColor:rows.map(function(r){return r.eff>=avgE?'#0d6e8a':'#dc2626';}),
+      pointBorderColor:'#fff',pointBorderWidth:2.5,borderWidth:2.5,spanGaps:true}
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{
       legend:{position:'top',labels:{usePointStyle:true,padding:14}},
       tooltip:{backgroundColor:'rgba(45,106,79,.95)',padding:10,
         callbacks:{label:function(c){return '效率: '+(c.parsed.y?c.parsed.y.toFixed(2)+' KG/人時':'無工時記錄');}}},
       datalabels:{display:function(){return PRINT_MODE;},align:'top',anchor:'end',
-        color:'#1a2e1e',font:{weight:'700',size:11},
+        color:'#0d6e8a',font:{weight:'700',size:11},
         formatter:function(v){return v?v.toFixed(2):'';}},
       annotation:{annotations:{avgLine:{
         type:'line',yMin:avgE,yMax:avgE,
