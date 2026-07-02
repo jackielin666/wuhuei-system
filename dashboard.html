@@ -144,6 +144,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
 .empty{text-align:center;padding:60px;color:var(--ink4)}
 
 /* ── 列印專用（匯出PDF）── */
+.print-footer{display:none}
 @media print{
   @page{size:A4 portrait;margin:7mm}
   html,body{background:#fff!important;width:196mm!important}
@@ -176,6 +177,18 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
   .btbl th,.btbl td{padding:5px 6px}
   /* 顏色完整印出 */
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  /* 固定頁尾：每頁底部顯示 */
+  .print-footer{display:flex!important;position:fixed;bottom:0;left:0;right:0;
+    justify-content:space-between;align-items:center;
+    padding:4px 6px;border-top:1px solid #ccc;
+    font-size:8px;color:#666;font-family:'JetBrains Mono','Noto Sans TC',sans-serif;
+    background:#fff}
+  .pf-left{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pf-right{white-space:nowrap;padding-left:8px}
+  /* 頁碼（CSS counter）*/
+  .pf-right::after{content:"　第 " counter(page) " / " counter(pages) " 頁"}
+  /* 內容底部留空間給頁尾 */
+  body{margin-bottom:14mm}
 }
 </style>
 </head>
@@ -269,6 +282,12 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink)
     <div class="cc-body" style="padding:0;overflow-x:auto"><div id="batch-table"></div></div>
   </div>
 
+</div>
+
+<!-- 列印頁尾（螢幕隱藏，僅列印顯示）-->
+<div class="print-footer" id="print-footer">
+  <span class="pf-left">五惠 原料處理記錄及分析系統　|　資料更新人員：<span id="pf-updater">—</span></span>
+  <span class="pf-right" id="pf-date"></span>
 </div>
 
 <script>
@@ -399,7 +418,8 @@ function cvtSheet(r){
     workers:parseFloat(r['作業人數'])||0,
     mh:parseFloat(r['總人力工時hr'])||0,
     eff:parseFloat(r['效率KG/人時'])||0,
-    notes:String(r['備註']||'')
+    notes:String(r['備註']||''),
+    source:String(r['資料來源']||'')
   };
 }
 
@@ -838,6 +858,21 @@ function exportPDF(){
   var dateStr=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
   var origTitle=document.title;
   document.title='五惠「'+(SEL_FRUIT||'全部')+'」原料處理_'+dateStr;
+
+  // 頁尾：代入最新一筆的更新人員 + 列印日期
+  var latestUpdater='—';
+  var withSource=ALL.filter(function(r){return r.source;});
+  if(withSource.length){
+    // 資料來源格式「姓名 YYYY-MM-DD」，取最新一筆的姓名
+    var sorted=withSource.slice().sort(function(a,b){
+      var da=(a.source.match(/\d{4}-\d{2}-\d{2}/)||[''])[0];
+      var db=(b.source.match(/\d{4}-\d{2}-\d{2}/)||[''])[0];
+      return db.localeCompare(da);
+    });
+    latestUpdater=sorted[0].source.replace(/\s*\d{4}-\d{2}-\d{2}.*$/,'').trim()||sorted[0].source;
+  }
+  document.getElementById('pf-updater').textContent=latestUpdater;
+  document.getElementById('pf-date').textContent='列印日期：'+d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
 
   // 列印前：開啟數值標籤 + resize 圖表以適配 A4 列印寬度
   function applyPrintCharts(on){
